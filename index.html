@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bowling Score</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin: 18px 0 10px;
+}
+
+#camera {
+  width: 92%;
+  max-width: 500px;
+  border-radius: 18px;
+  background: #222;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin: 8px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.start {
+  background: #2196f3;
+  color: white;
+}
+
+.reset {
+  background: #444;
+  color: white;
+}
+
+.pins {
+  display: grid;
+  grid-template-columns: repeat(4, 55px);
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+}
+
+.pin {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: white;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  border: 3px solid #aaa;
+}
+
+.pin.down {
+  background: #555;
+  color: #aaa;
+  border-color: #333;
+}
+
+.result {
+  font-size: 28px;
+  margin: 15px;
+}
+
+.scoreboard {
+  width: 95%;
+  max-width: 700px;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th, td {
+  border: 1px solid #555;
+  padding: 10px;
+}
+
+th {
+  background: #222;
+}
+
+td {
+  background: #181818;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎳 BOWLING SCORE</h1>
+
+<video id="camera" autoplay playsinline></video>
+
+<br>
+
+<button class="start" onclick="startCamera()">
+📷 카메라 시작
+</button>
+
+<button class="reset" onclick="resetGame()">
+🔄 리셋
+</button>
+
+<div class="result">
+쓰러진 핀: <strong id="downCount">0</strong>개
+</div>
+
+<div class="pins" id="pins"></div>
+
+<button class="start" onclick="recordThrow()">
+🎳 투구 기록
+</button>
+
+<div class="scoreboard">
+
+<table>
+<thead>
+<tr>
+<th>프레임</th>
+<th>1구</th>
+<th>2구</th>
+<th>점수</th>
+</tr>
+</thead>
+
+<tbody id="scoreBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let stream = null;
+
+let pins = Array(10).fill(true);
+
+let throws = [];
+
+let frame = 1;
+
+
+// 핀 만들기
+function createPins() {
+
+  const container = document.getElementById("pins");
+
+  container.innerHTML = "";
+
+  pins.forEach((standing, index) => {
+
+    const pin = document.createElement("div");
+
+    pin.className = "pin";
+
+    if (!standing) {
+      pin.classList.add("down");
+    }
+
+    pin.textContent = index + 1;
+
+    pin.onclick = () => {
+
+      pins[index] = !pins[index];
+
+      createPins();
+
+      updateCount();
+
+    };
+
+    container.appendChild(pin);
+
+  });
+
+}
+
+
+// 쓰러진 핀 개수
+function updateCount() {
+
+  const down = pins.filter(x => !x).length;
+
+  document.getElementById("downCount").textContent = down;
+
+}
+
+
+// 카메라
+async function startCamera() {
+
+  try {
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          ideal: "environment"
+        }
+      },
+      audio: false
+    });
+
+    document.getElementById("camera").srcObject = stream;
+
+  } catch (error) {
+
+    alert("카메라를 사용할 수 없습니다.\nSafari에서 카메라 권한을 허용해주세요.");
+
+  }
+
+}
+
+
+// 투구 기록
+function recordThrow() {
+
+  const down = pins.filter(x => !x).length;
+
+  throws.push(down);
+
+  updateScoreboard();
+
+  // 다음 투구를 위해 핀 리셋
+  pins = Array(10).fill(true);
+
+  createPins();
+
+  updateCount();
+
+}
+
+
+// 스코어보드
+function updateScoreboard() {
+
+  const body = document.getElementById("scoreBody");
+
+  body.innerHTML = "";
+
+  for (let i = 0; i < throws.length; i++) {
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${Math.floor(i / 2) + 1}</td>
+      <td>${i % 2 === 0 ? throws[i] : ""}</td>
+      <td>${i % 2 === 1 ? throws[i] : ""}</td>
+      <td>${calculateScore(i)}</td>
+    `;
+
+    body.appendChild(row);
+
+  }
+
+}
+
+
+// 기본 점수 계산
+function calculateScore(index) {
+
+  let score = 0;
+
+  for (let i = 0; i <= index; i++) {
+    score += throws[i];
+  }
+
+  return score;
+
+}
+
+
+// 리셋
+function resetGame() {
+
+  throws = [];
+
+  frame = 1;
+
+  pins = Array(10).fill(true);
+
+  createPins();
+
+  updateCount();
+
+  updateScoreboard();
+
+}
+
+
+createPins();
+
+updateCount();
+
+</script>
+
+</body>
+</html>
