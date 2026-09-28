@@ -2,149 +2,247 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bowling Score</title>
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Bowling AI Score</title>
+
+<script async
+src="https://docs.opencv.org/4.x/opencv.js"
+onload="opencvReady()">
+</script>
 
 <style>
+
 * {
-  box-sizing: border-box;
+    box-sizing:border-box;
 }
 
 body {
-  margin: 0;
-  background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+    margin:0;
+    background:#090909;
+    color:white;
+    font-family:-apple-system,BlinkMacSystemFont,
+    "Segoe UI",Arial,sans-serif;
+    text-align:center;
 }
 
 h1 {
-  margin: 18px 0 10px;
+    margin:18px 0 5px;
+    font-size:26px;
 }
 
-#camera {
-  width: 92%;
-  max-width: 500px;
-  border-radius: 18px;
-  background: #222;
+.status {
+    color:#aaa;
+    font-size:14px;
+    margin-bottom:12px;
+}
+
+.cameraBox {
+    position:relative;
+    width:94%;
+    max-width:600px;
+    margin:auto;
+}
+
+video {
+    width:100%;
+    border-radius:18px;
+    background:#222;
+    display:block;
+}
+
+canvas {
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    border-radius:18px;
+}
+
+.controls {
+    margin:14px auto;
+    width:94%;
+    max-width:600px;
 }
 
 button {
-  border: 0;
-  border-radius: 12px;
-  padding: 14px 20px;
-  margin: 8px;
-  font-size: 17px;
-  font-weight: bold;
+    border:0;
+    border-radius:14px;
+    padding:15px 18px;
+    margin:5px;
+    font-size:16px;
+    font-weight:700;
 }
 
 .start {
-  background: #2196f3;
-  color: white;
+    background:#1683ff;
+    color:white;
+}
+
+.capture {
+    background:#19a463;
+    color:white;
 }
 
 .reset {
-  background: #444;
-  color: white;
+    background:#444;
+    color:white;
 }
 
-.pins {
-  display: grid;
-  grid-template-columns: repeat(4, 55px);
-  justify-content: center;
-  gap: 10px;
-  margin: 20px auto;
-}
-
-.pin {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background: white;
-  color: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  border: 3px solid #aaa;
-}
-
-.pin.down {
-  background: #555;
-  color: #aaa;
-  border-color: #333;
+button:disabled {
+    opacity:.35;
 }
 
 .result {
-  font-size: 28px;
-  margin: 15px;
+    margin:18px auto;
+    padding:18px;
+    width:94%;
+    max-width:600px;
+    border-radius:18px;
+    background:#171717;
 }
 
-.scoreboard {
-  width: 95%;
-  max-width: 700px;
-  margin: 20px auto;
-  overflow-x: auto;
+.big {
+    font-size:42px;
+    font-weight:800;
+}
+
+.small {
+    color:#aaa;
+    margin-top:5px;
+}
+
+.score {
+    width:94%;
+    max-width:700px;
+    margin:20px auto 40px;
+    overflow-x:auto;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
 }
 
-th, td {
-  border: 1px solid #555;
-  padding: 10px;
+th,td {
+    border:1px solid #444;
+    padding:10px;
 }
 
 th {
-  background: #222;
+    background:#202020;
 }
 
 td {
-  background: #181818;
+    background:#111;
 }
+
+.info {
+    width:94%;
+    max-width:600px;
+    margin:10px auto;
+    color:#999;
+    font-size:13px;
+    line-height:1.6;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>🎳 BOWLING SCORE</h1>
+<h1>🎳 BOWLING AI SCORE</h1>
 
-<video id="camera" autoplay playsinline></video>
+<div class="status" id="status">
+OpenCV 로딩 중...
+</div>
 
-<br>
+<div class="cameraBox">
 
-<button class="start" onclick="startCamera()">
+<video id="camera"
+autoplay
+playsinline
+muted></video>
+
+<canvas id="overlay"></canvas>
+
+</div>
+
+<div class="controls">
+
+<button class="start"
+onclick="startCamera()">
 📷 카메라 시작
 </button>
 
-<button class="reset" onclick="resetGame()">
-🔄 리셋
+<br>
+
+<button class="capture"
+id="setupBtn"
+onclick="captureSetup()"
+disabled>
+🎳 ① 핀 10개 저장
 </button>
 
-<div class="result">
-쓰러진 핀: <strong id="downCount">0</strong>개
+<button class="capture"
+id="detectBtn"
+onclick="detectPins()"
+disabled>
+🔎 ② 쓰러진 핀 분석
+</button>
+
+<br>
+
+<button class="reset"
+onclick="resetAll()">
+🔄 다시 시작
+</button>
+
 </div>
 
-<div class="pins" id="pins"></div>
+<div class="result">
 
-<button class="start" onclick="recordThrow()">
-🎳 투구 기록
-</button>
+<div>이번 투구</div>
 
-<div class="scoreboard">
+<div class="big">
+<span id="fallen">0</span>개
+</div>
+
+<div class="small">
+쓰러진 핀
+</div>
+
+</div>
+
+<div class="info">
+
+① 모든 핀이 서 있을 때 「핀 10개 저장」<br>
+② 공을 던진 후 「쓰러진 핀 분석」<br>
+③ 카메라는 가능한 한 움직이지 마세요.
+
+</div>
+
+<div class="score">
 
 <table>
+
 <thead>
+
 <tr>
 <th>프레임</th>
 <th>1구</th>
 <th>2구</th>
 <th>점수</th>
 </tr>
+
 </thead>
 
 <tbody id="scoreBody"></tbody>
@@ -153,167 +251,742 @@ td {
 
 </div>
 
+
 <script>
+
+let video;
+let canvas;
+let ctx;
+
+let opencvLoaded = false;
 
 let stream = null;
 
-let pins = Array(10).fill(true);
+let setupImage = null;
+
+let pinPositions = [];
 
 let throws = [];
 
-let frame = 1;
+let currentFrame = 1;
 
 
-// 핀 만들기
-function createPins() {
+/* -------------------------
+   OpenCV 로딩
+------------------------- */
 
-  const container = document.getElementById("pins");
+function opencvReady() {
 
-  container.innerHTML = "";
+    opencvLoaded = true;
 
-  pins.forEach((standing, index) => {
-
-    const pin = document.createElement("div");
-
-    pin.className = "pin";
-
-    if (!standing) {
-      pin.classList.add("down");
-    }
-
-    pin.textContent = index + 1;
-
-    pin.onclick = () => {
-
-      pins[index] = !pins[index];
-
-      createPins();
-
-      updateCount();
-
-    };
-
-    container.appendChild(pin);
-
-  });
+    document.getElementById("status")
+    .textContent =
+    "OpenCV 준비 완료";
 
 }
 
 
-// 쓰러진 핀 개수
-function updateCount() {
+/* -------------------------
+   카메라
+------------------------- */
 
-  const down = pins.filter(x => !x).length;
-
-  document.getElementById("downCount").textContent = down;
-
-}
-
-
-// 카메라
 async function startCamera() {
 
-  try {
+    try {
 
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: {
-          ideal: "environment"
+        stream =
+        await navigator.mediaDevices.getUserMedia({
+
+            video: {
+                facingMode:{
+                    ideal:"environment"
+                },
+                width:{
+                    ideal:1280
+                },
+                height:{
+                    ideal:720
+                }
+            },
+
+            audio:false
+
+        });
+
+        video =
+        document.getElementById("camera");
+
+        canvas =
+        document.getElementById("overlay");
+
+        ctx =
+        canvas.getContext("2d");
+
+        video.srcObject = stream;
+
+        await video.play();
+
+        canvas.width =
+        video.videoWidth;
+
+        canvas.height =
+        video.videoHeight;
+
+        document.getElementById("setupBtn")
+        .disabled = false;
+
+        document.getElementById("status")
+        .textContent =
+        "카메라 준비 완료";
+
+    }
+
+    catch(error) {
+
+        console.log(error);
+
+        alert(
+        "카메라를 사용할 수 없습니다.\n\n" +
+        "Safari 설정에서 카메라 권한을 허용해주세요."
+        );
+
+    }
+
+}
+
+
+/* -------------------------
+   현재 영상 프레임 가져오기
+------------------------- */
+
+function getFrame() {
+
+    canvas.width =
+    video.videoWidth;
+
+    canvas.height =
+    video.videoHeight;
+
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    return ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+}
+
+
+/* -------------------------
+   흰색 볼링핀 찾기
+------------------------- */
+
+function findPins(imageData) {
+
+    let src =
+    cv.matFromImageData(imageData);
+
+    let hsv =
+    new cv.Mat();
+
+    let mask =
+    new cv.Mat();
+
+    cv.cvtColor(
+        src,
+        hsv,
+        cv.COLOR_RGBA2RGB
+    );
+
+    cv.cvtColor(
+        hsv,
+        hsv,
+        cv.COLOR_RGB2HSV
+    );
+
+
+    /*
+       볼링핀의 밝은 부분 탐지
+    */
+
+    let low =
+    new cv.Mat(
+        hsv.rows,
+        hsv.cols,
+        hsv.type(),
+        [0,0,130,0]
+    );
+
+    let high =
+    new cv.Mat(
+        hsv.rows,
+        hsv.cols,
+        hsv.type(),
+        [180,100,255,255]
+    );
+
+    cv.inRange(
+        hsv,
+        low,
+        high,
+        mask
+    );
+
+
+    /*
+       작은 노이즈 제거
+    */
+
+    let kernel =
+    cv.getStructuringElement(
+        cv.MORPH_ELLIPSE,
+        new cv.Size(7,7)
+    );
+
+    cv.morphologyEx(
+        mask,
+        mask,
+        cv.MORPH_OPEN,
+        kernel
+    );
+
+    cv.morphologyEx(
+        mask,
+        mask,
+        cv.MORPH_CLOSE,
+        kernel
+    );
+
+
+    let contours =
+    new cv.MatVector();
+
+    let hierarchy =
+    new cv.Mat();
+
+    cv.findContours(
+        mask,
+        contours,
+        hierarchy,
+        cv.RETR_EXTERNAL,
+        cv.CHAIN_APPROX_SIMPLE
+    );
+
+
+    let candidates = [];
+
+
+    for(
+        let i=0;
+        i<contours.size();
+        i++
+    ){
+
+        let contour =
+        contours.get(i);
+
+        let rect =
+        cv.boundingRect(contour);
+
+        let area =
+        rect.width * rect.height;
+
+        let ratio =
+        rect.height / Math.max(
+            rect.width,
+            1
+        );
+
+
+        /*
+           볼링핀 후보
+
+           너무 작은 물체 제거
+        */
+
+        if(
+            area > 300 &&
+            area < 150000 &&
+            ratio > 1.15
+        ){
+
+            candidates.push({
+
+                x:
+                rect.x +
+                rect.width/2,
+
+                y:
+                rect.y +
+                rect.height/2,
+
+                width:
+                rect.width,
+
+                height:
+                rect.height,
+
+                ratio:ratio,
+
+                area:area
+
+            });
+
         }
-      },
-      audio: false
-    });
 
-    document.getElementById("camera").srcObject = stream;
-
-  } catch (error) {
-
-    alert("카메라를 사용할 수 없습니다.\nSafari에서 카메라 권한을 허용해주세요.");
-
-  }
-
-}
+    }
 
 
-// 투구 기록
-function recordThrow() {
+    src.delete();
+    hsv.delete();
+    mask.delete();
+    low.delete();
+    high.delete();
+    kernel.delete();
+    contours.delete();
+    hierarchy.delete();
 
-  const down = pins.filter(x => !x).length;
-
-  throws.push(down);
-
-  updateScoreboard();
-
-  // 다음 투구를 위해 핀 리셋
-  pins = Array(10).fill(true);
-
-  createPins();
-
-  updateCount();
+    return candidates;
 
 }
 
 
-// 스코어보드
+/* -------------------------
+   10개 핀 저장
+------------------------- */
+
+function captureSetup() {
+
+    if(!opencvLoaded){
+
+        alert("OpenCV가 아직 로딩 중입니다.");
+
+        return;
+
+    }
+
+    let frame =
+    getFrame();
+
+    let candidates =
+    findPins(frame);
+
+
+    /*
+       후보를 크기순 정렬
+    */
+
+    candidates.sort(
+        (a,b)=>b.area-a.area
+    );
+
+
+    /*
+       최대 10개
+    */
+
+    pinPositions =
+    candidates.slice(0,10);
+
+
+    if(
+        pinPositions.length < 5
+    ){
+
+        alert(
+        "핀을 충분히 찾지 못했습니다.\n\n" +
+        "카메라를 볼링핀 쪽으로 향하고 " +
+        "핀 전체가 보이게 해주세요."
+        );
+
+        return;
+
+    }
+
+
+    setupImage =
+    frame;
+
+
+    document.getElementById("detectBtn")
+    .disabled = false;
+
+
+    document.getElementById("status")
+    .textContent =
+    "핀 배치 저장 완료: " +
+    pinPositions.length +
+    "개 후보";
+
+
+    drawPins(
+        pinPositions,
+        false
+    );
+
+}
+
+
+/* -------------------------
+   쓰러진 핀 분석
+------------------------- */
+
+function detectPins() {
+
+    if(
+        !setupImage ||
+        pinPositions.length === 0
+    ){
+
+        alert(
+        "먼저 「핀 10개 저장」을 눌러주세요."
+        );
+
+        return;
+
+    }
+
+
+    let current =
+    getFrame();
+
+
+    let currentPins =
+    findPins(current);
+
+
+    let fallen = 0;
+
+
+    /*
+       기존 핀 위치 주변에서
+       현재 흰색 물체가 사라졌는지 확인
+    */
+
+    for(
+        let i=0;
+        i<pinPositions.length;
+        i++
+    ){
+
+        let original =
+        pinPositions[i];
+
+
+        let nearest =
+        null;
+
+        let nearestDistance =
+        Infinity;
+
+
+        for(
+            let j=0;
+            j<currentPins.length;
+            j++
+        ){
+
+            let candidate =
+            currentPins[j];
+
+
+            let dx =
+            candidate.x -
+            original.x;
+
+            let dy =
+            candidate.y -
+            original.y;
+
+            let distance =
+            Math.sqrt(
+                dx*dx +
+                dy*dy
+            );
+
+
+            /*
+               위치가 크게 바뀌지 않은
+               물체인지 확인
+            */
+
+            if(
+                distance <
+                original.height * 1.2
+            ){
+
+                if(
+                    distance <
+                    nearestDistance
+                ){
+
+                    nearest =
+                    candidate;
+
+                    nearestDistance =
+                    distance;
+
+                }
+
+            }
+
+        }
+
+
+        /*
+           현재 위치에 핀이 없으면
+           쓰러진 것으로 판단
+        */
+
+        if(!nearest){
+
+            fallen++;
+
+        }
+
+        /*
+           세로로 서 있지 않은 경우
+           쓰러진 것으로 판단
+        */
+
+        else if(
+            nearest.ratio < 1.35
+        ){
+
+            fallen++;
+
+        }
+
+    }
+
+
+    /*
+       최대 10개 제한
+    */
+
+    fallen =
+    Math.max(
+        0,
+        Math.min(
+            10,
+            fallen
+        )
+    );
+
+
+    document.getElementById("fallen")
+    .textContent =
+    fallen;
+
+
+    /*
+       점수 기록
+    */
+
+    throws.push(fallen);
+
+    updateScoreboard();
+
+
+    document.getElementById("status")
+    .textContent =
+    "분석 완료";
+
+
+    /*
+       분석 결과 표시
+    */
+
+    drawPins(
+        pinPositions,
+        true
+    );
+
+}
+
+
+/* -------------------------
+   화면에 핀 표시
+------------------------- */
+
+function drawPins(
+    positions,
+    showResult
+){
+
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    for(
+        let i=0;
+        i<positions.length;
+        i++
+    ){
+
+        let p =
+        positions[i];
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            18,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.strokeStyle =
+        "lime";
+
+        ctx.lineWidth = 4;
+
+        ctx.stroke();
+
+
+        ctx.fillStyle =
+        "white";
+
+        ctx.font =
+        "bold 18px Arial";
+
+        ctx.fillText(
+            i+1,
+            p.x-6,
+            p.y+6
+        );
+
+    }
+
+}
+
+
+/* -------------------------
+   스코어보드
+------------------------- */
+
 function updateScoreboard() {
 
-  const body = document.getElementById("scoreBody");
+    let body =
+    document.getElementById(
+        "scoreBody"
+    );
 
-  body.innerHTML = "";
+    body.innerHTML = "";
 
-  for (let i = 0; i < throws.length; i++) {
 
-    const row = document.createElement("tr");
+    let total = 0;
 
-    row.innerHTML = `
-      <td>${Math.floor(i / 2) + 1}</td>
-      <td>${i % 2 === 0 ? throws[i] : ""}</td>
-      <td>${i % 2 === 1 ? throws[i] : ""}</td>
-      <td>${calculateScore(i)}</td>
-    `;
 
-    body.appendChild(row);
+    for(
+        let i=0;
+        i<throws.length;
+        i++
+    ){
 
-  }
+        total +=
+        throws[i];
+
+
+        let frame =
+        Math.floor(i/2)+1;
+
+
+        let row =
+        document.createElement("tr");
+
+
+        let first =
+        i%2===0 ?
+        throws[i] :
+        "";
+
+
+        let second =
+        i%2===1 ?
+        throws[i] :
+        "";
+
+
+        row.innerHTML = `
+
+        <td>${frame}</td>
+
+        <td>${first}</td>
+
+        <td>${second}</td>
+
+        <td>${total}</td>
+
+        `;
+
+
+        body.appendChild(row);
+
+    }
 
 }
 
 
-// 기본 점수 계산
-function calculateScore(index) {
+/* -------------------------
+   리셋
+------------------------- */
 
-  let score = 0;
+function resetAll() {
 
-  for (let i = 0; i <= index; i++) {
-    score += throws[i];
-  }
+    setupImage = null;
 
-  return score;
+    pinPositions = [];
+
+    throws = [];
+
+    document.getElementById(
+        "fallen"
+    ).textContent = "0";
+
+
+    document.getElementById(
+        "detectBtn"
+    ).disabled = true;
+
+
+    document.getElementById(
+        "status"
+    ).textContent =
+    "핀 10개를 준비해주세요.";
+
+
+    updateScoreboard();
+
+
+    if(ctx){
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+    }
 
 }
-
-
-// 리셋
-function resetGame() {
-
-  throws = [];
-
-  frame = 1;
-
-  pins = Array(10).fill(true);
-
-  createPins();
-
-  updateCount();
-
-  updateScoreboard();
-
-}
-
-
-createPins();
-
-updateCount();
 
 </script>
 
