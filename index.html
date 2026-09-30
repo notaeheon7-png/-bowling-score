@@ -3,491 +3,448 @@
 <head>
 <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width,
-    initial-scale=1.0,
-    maximum-scale=1.0,
-    user-scalable=no">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
 
-<title>MINI BOWLING AUTO</title>
+<title>Mini Bowling Automatic</title>
 
 <style>
-
-/* =========================================================
-   기본
-========================================================= */
-
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html,
-body{
-    margin:0;
-    padding:0;
-    width:100%;
-    min-height:100%;
-    background:#050b13;
-    color:white;
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #07111f;
+    color: white;
     font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
-        Arial,
         sans-serif;
 }
 
-body{
-    overflow-x:hidden;
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-
-/* =========================================================
-   실제 카메라 영상
-   화면에서는 절대 보이지 않음
-========================================================= */
-
-#camera{
-    position:fixed;
-
-    width:1px;
-    height:1px;
-
-    left:-100px;
-    top:-100px;
-
-    opacity:0;
-
-    pointer-events:none;
+.app {
+    width: 100%;
+    max-width: 700px;
+    min-height: 100vh;
+    padding: 22px 16px 30px;
+    display: flex;
+    flex-direction: column;
 }
 
-#processCanvas{
-    position:fixed;
-
-    width:1px;
-    height:1px;
-
-    left:-100px;
-    top:-100px;
-
-    opacity:0;
-
-    pointer-events:none;
+.header {
+    text-align: center;
+    margin-bottom: 15px;
 }
 
-
-/* =========================================================
-   전광판
-========================================================= */
-
-.app{
-    width:100%;
-    max-width:900px;
-
-    min-height:100vh;
-
-    margin:auto;
-
-    padding:
-        env(safe-area-inset-top)
-        10px
-        env(safe-area-inset-bottom);
-
-    background:
-        radial-gradient(
-            circle at 50% 0%,
-            #193454 0%,
-            #081421 38%,
-            #03070c 100%
-        );
+.title {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 2px;
 }
 
-
-/* =========================================================
-   상단
-========================================================= */
-
-.header{
-    display:flex;
-
-    justify-content:space-between;
-    align-items:center;
-
-    padding:
-        16px
-        8px
-        10px;
+.subtitle {
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: .55;
 }
 
-.logo{
-    font-size:19px;
-    font-weight:900;
-
-    letter-spacing:1px;
+.statusBox {
+    margin-top: 15px;
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
 }
 
-.auto{
-    font-size:10px;
-
-    padding:5px 8px;
-
-    border-radius:6px;
-
-    background:#123d27;
-    color:#55ff9b;
-
-    font-weight:800;
+.status {
+    font-size: 20px;
+    font-weight: 900;
 }
 
-
-/* =========================================================
-   큰 점수
-========================================================= */
-
-.mainScore{
-    text-align:center;
-
-    margin-top:4px;
-
-    padding:15px 10px 18px;
-
-    border-top:
-        1px solid
-        rgba(255,255,255,.08);
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.08);
+.detail {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: .65;
+    min-height: 18px;
 }
 
-.totalLabel{
-    color:#7d8b99;
-
-    font-size:11px;
-
-    letter-spacing:2px;
+.startButton {
+    width: 100%;
+    border: 0;
+    border-radius: 18px;
+    margin-top: 15px;
+    padding: 17px;
+    font-size: 18px;
+    font-weight: 900;
+    background: #ffffff;
+    color: #07111f;
 }
 
-.totalScore{
-    margin-top:2px;
-
-    font-size:65px;
-
-    line-height:1;
-
-    font-weight:900;
-
-    color:#53eaff;
-
-    text-shadow:
-        0 0 15px
-        rgba(83,234,255,.25);
+.startButton:active {
+    transform: scale(.98);
 }
 
-
-/* =========================================================
-   현재 상태
-========================================================= */
-
-.statusBox{
-    margin:12px 4px;
-
-    padding:13px;
-
-    border-radius:10px;
-
-    text-align:center;
-
-    background:#0b1825;
-
-    border:
-        1px solid
-        #19334b;
+.hidden {
+    display: none !important;
 }
 
-.statusTitle{
-    font-size:19px;
+/* 현재 투구 */
 
-    font-weight:900;
+.current {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 
-.statusText{
-    margin-top:4px;
-
-    font-size:11px;
-
-    color:#728394;
+.card {
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
 }
 
-
-/* =========================================================
-   현재 프레임
-========================================================= */
-
-.currentInfo{
-    display:grid;
-
-    grid-template-columns:
-        1fr
-        1fr
-        1fr;
-
-    gap:7px;
-
-    margin:8px 4px;
+.cardLabel {
+    font-size: 11px;
+    opacity: .55;
+    margin-bottom: 7px;
 }
 
-.infoBox{
-    padding:11px 5px;
-
-    border-radius:8px;
-
-    text-align:center;
-
-    background:#0c1823;
-
-    border:
-        1px solid
-        #1b2c3c;
+.cardValue {
+    font-size: 30px;
+    font-weight: 950;
 }
 
-.infoLabel{
-    color:#657585;
-
-    font-size:9px;
+.bigResult {
+    margin-top: 15px;
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 22px;
+    padding: 20px;
+    text-align: center;
 }
 
-.infoValue{
-    margin-top:3px;
-
-    font-size:21px;
-
-    font-weight:900;
+.resultText {
+    font-size: 31px;
+    font-weight: 950;
 }
 
-
-/* =========================================================
-   볼링 전광판
-========================================================= */
-
-.board{
-    margin-top:13px;
-
-    overflow-x:auto;
-
-    border-radius:8px;
-
-    background:#08131e;
-
-    border:
-        1px solid
-        #20384e;
+.resultSub {
+    margin-top: 5px;
+    font-size: 13px;
+    opacity: .6;
 }
 
-.frames{
-    display:grid;
+/* 총점 */
 
-    grid-template-columns:
-        repeat(10, minmax(60px, 1fr));
-
-    min-width:600px;
+.totalBox {
+    margin-top: 15px;
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 22px;
+    padding: 20px;
+    text-align: center;
 }
 
-.frame{
-    position:relative;
-
-    min-height:92px;
-
-    border-right:
-        1px solid
-        #263c4e;
-
-    background:#0b1722;
+.totalLabel {
+    font-size: 12px;
+    opacity: .55;
 }
 
-.frame:last-child{
-    border-right:0;
+.totalScore {
+    margin-top: 4px;
+    font-size: 58px;
+    line-height: 1;
+    font-weight: 950;
 }
 
-.frameNumber{
-    height:25px;
+/* 프레임 */
 
-    display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    background:#102536;
-
-    color:#7d91a3;
-
-    font-size:10px;
-
-    font-weight:800;
+.frames {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
 }
 
-.frame.active
-.frameNumber{
-    background:#17486a;
-    color:white;
+.frame {
+    min-height: 86px;
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 13px;
+    overflow: hidden;
 }
 
-.rolls{
-    display:grid;
-
-    grid-template-columns:
-        1fr
-        1fr;
-
-    height:29px;
+.frame.active {
+    border-color: white;
 }
 
-.roll{
-    display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    border-bottom:
-        1px solid
-        #253b4c;
-
-    border-left:
-        1px solid
-        #253b4c;
-
-    font-size:15px;
-
-    font-weight:900;
+.frameNumber {
+    background: #172941;
+    padding: 5px;
+    text-align: center;
+    font-size: 10px;
+    opacity: .75;
 }
 
-.roll:first-child{
-    border-left:0;
+.rolls {
+    height: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #203451;
 }
 
-.frameScore{
-    height:38px;
-
-    display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    color:#c7d5df;
-
-    font-size:18px;
-
-    font-weight:900;
+.roll {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 900;
+    border-right: 1px solid #203451;
 }
 
-
-/* =========================================================
-   최근 결과
-========================================================= */
-
-.result{
-    margin-top:12px;
-
-    padding:15px;
-
-    text-align:center;
-
-    border-radius:10px;
-
-    background:#09141f;
-
-    border:
-        1px solid
-        #1d3447;
+.roll:last-child {
+    border-right: 0;
 }
 
-.resultLabel{
-    color:#647587;
-
-    font-size:9px;
-
-    letter-spacing:1px;
+.frameScore {
+    height: 37px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
 }
 
-.resultValue{
-    margin-top:2px;
+/* 10프레임 */
 
-    font-size:34px;
-
-    font-weight:900;
-
-    color:#ffffff;
+.frame.tenth .rolls {
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
+/* 핀 상태 */
 
-/* =========================================================
-   카메라 준비 버튼
-========================================================= */
-
-.startArea{
-    text-align:center;
-
-    margin-top:15px;
+.pinPanel {
+    margin-top: 15px;
+    background: #101d30;
+    border: 1px solid #203451;
+    border-radius: 22px;
+    padding: 17px;
 }
 
-#startButton{
-    border:0;
-
-    padding:
-        13px
-        25px;
-
-    border-radius:9px;
-
-    background:#147bd1;
-
-    color:white;
-
-    font-size:15px;
-
-    font-weight:900;
+.pinTitle {
+    text-align: center;
+    font-size: 11px;
+    opacity: .55;
+    margin-bottom: 13px;
 }
 
-#startButton:active{
-    transform:scale(.97);
+.pinGrid {
+    width: 170px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-#startButton.hidden{
-    display:none;
+.pinRow {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
 }
 
-
-/* =========================================================
-   안내
-========================================================= */
-
-.help{
-    margin-top:18px;
-
-    padding:0 8px 25px;
-
-    text-align:center;
-
-    color:#4f6274;
-
-    font-size:9px;
-
-    line-height:1.7;
+.pin {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #263a55;
+    border: 2px solid #49617f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 9px;
+    font-weight: 900;
 }
 
+.pin.standing {
+    background: #ffffff;
+    color: #07111f;
+    border-color: #ffffff;
+}
+
+.pin.down {
+    background: #26303c;
+    color: #738196;
+    border-color: #34465d;
+}
+
+/*
+카메라 화면은 절대 보이지 않음.
+video를 완전히 화면 밖으로 이동하지만
+브라우저가 카메라 스트림을 계속 유지하도록 함.
+*/
+
+#camera {
+    position: fixed;
+    left: -2000px;
+    top: -2000px;
+    width: 2px;
+    height: 2px;
+    opacity: 0.001;
+    pointer-events: none;
+}
+
+#processor {
+    position: fixed;
+    left: -2000px;
+    top: -2000px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.footer {
+    margin-top: auto;
+    padding-top: 18px;
+    text-align: center;
+    font-size: 10px;
+    opacity: .35;
+}
 </style>
 </head>
 
-
 <body>
 
+<div class="app">
 
-<!-- ======================================================
-     후면 카메라
-     화면에는 표시하지 않음
-======================================================= -->
+    <div class="header">
+        <div class="title">🎳 MINI BOWLING</div>
+        <div class="subtitle">
+            AUTOMATIC SCORING SYSTEM
+        </div>
+    </div>
+
+    <div class="statusBox">
+        <div id="status" class="status">
+            카메라를 시작하세요
+        </div>
+
+        <div id="detail" class="detail">
+            처음 한 번만 버튼을 눌러주세요.
+        </div>
+
+        <button
+            id="startButton"
+            class="startButton">
+            📷 게임 시작
+        </button>
+    </div>
+
+    <div class="current">
+
+        <div class="card">
+            <div class="cardLabel">FRAME</div>
+            <div id="frameText" class="cardValue">
+                1
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="cardLabel">BALL</div>
+            <div id="ballText" class="cardValue">
+                1
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bigResult">
+
+        <div id="resultText" class="resultText">
+            READY
+        </div>
+
+        <div id="resultSub" class="resultSub">
+            10개의 핀을 세워주세요
+        </div>
+
+    </div>
+
+    <div class="totalBox">
+
+        <div class="totalLabel">
+            TOTAL SCORE
+        </div>
+
+        <div id="totalScore" class="totalScore">
+            0
+        </div>
+
+    </div>
+
+    <div id="frames" class="frames"></div>
+
+    <div class="pinPanel">
+
+        <div class="pinTitle">
+            PIN STATUS
+        </div>
+
+        <div class="pinGrid">
+
+            <div class="pinRow">
+                <div class="pin" id="pin0">1</div>
+                <div class="pin" id="pin1">2</div>
+                <div class="pin" id="pin2">3</div>
+                <div class="pin" id="pin3">4</div>
+            </div>
+
+            <div class="pinRow">
+                <div class="pin" id="pin4">5</div>
+                <div class="pin" id="pin5">6</div>
+                <div class="pin" id="pin6">7</div>
+            </div>
+
+            <div class="pinRow">
+                <div class="pin" id="pin7">8</div>
+                <div class="pin" id="pin8">9</div>
+            </div>
+
+            <div class="pinRow">
+                <div class="pin" id="pin9">10</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        CAMERA HIDDEN · AUTOMATIC DETECTION
+    </div>
+
+</div>
+
 
 <video
     id="camera"
@@ -497,2697 +454,2326 @@ body{
 </video>
 
 <canvas
-    id="processCanvas">
+    id="processor"
+    width="360"
+    height="480">
 </canvas>
-
-
-<div class="app">
-
-
-    <!-- ==================================================
-         HEADER
-    =================================================== -->
-
-    <div class="header">
-
-        <div class="logo">
-            🎳 MINI BOWLING
-        </div>
-
-        <div
-            id="autoBadge"
-            class="auto">
-
-            AUTO
-
-        </div>
-
-    </div>
-
-
-    <!-- ==================================================
-         TOTAL SCORE
-    =================================================== -->
-
-    <div class="mainScore">
-
-        <div class="totalLabel">
-            TOTAL SCORE
-        </div>
-
-        <div
-            id="totalScore"
-            class="totalScore">
-
-            0
-
-        </div>
-
-    </div>
-
-
-    <!-- ==================================================
-         STATUS
-    =================================================== -->
-
-    <div
-        id="statusBox"
-        class="statusBox">
-
-        <div
-            id="statusTitle"
-            class="statusTitle">
-
-            카메라를 시작하세요
-
-        </div>
-
-        <div
-            id="statusText"
-            class="statusText">
-
-            최초 1회만 버튼을 눌러주세요.
-
-        </div>
-
-    </div>
-
-
-    <!-- ==================================================
-         CURRENT INFO
-    =================================================== -->
-
-    <div class="currentInfo">
-
-
-        <div class="infoBox">
-
-            <div class="infoLabel">
-                FRAME
-            </div>
-
-            <div
-                id="frameNumber"
-                class="infoValue">
-
-                1
-
-            </div>
-
-        </div>
-
-
-        <div class="infoBox">
-
-            <div class="infoLabel">
-                THROW
-            </div>
-
-            <div
-                id="throwNumber"
-                class="infoValue">
-
-                1
-
-            </div>
-
-        </div>
-
-
-        <div class="infoBox">
-
-            <div class="infoLabel">
-                PINS
-            </div>
-
-            <div
-                id="pinNumber"
-                class="infoValue">
-
-                10
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-    <!-- ==================================================
-         BOWLING SCORE BOARD
-    =================================================== -->
-
-    <div class="board">
-
-        <div
-            id="frames"
-            class="frames">
-
-        </div>
-
-    </div>
-
-
-    <!-- ==================================================
-         LAST RESULT
-    =================================================== -->
-
-    <div class="result">
-
-        <div class="resultLabel">
-            LAST RESULT
-        </div>
-
-        <div
-            id="lastResult"
-            class="resultValue">
-
-            -
-
-        </div>
-
-    </div>
-
-
-    <!-- ==================================================
-         START
-    =================================================== -->
-
-    <div class="startArea">
-
-        <button
-            id="startButton"
-            onclick="startGame()">
-
-            📷 게임 시작
-
-        </button>
-
-    </div>
-
-
-    <div class="help">
-
-        아이폰을 거치대에 고정한 뒤 핀 10개를 세워주세요.<br>
-        카메라 화면은 표시되지 않고 전광판만 보입니다.<br>
-        핀 설치 → READY → 투구 → 결과 → 핀 정리까지 자동입니다.<br>
-        손으로 핀을 세우는 동안에는 점수를 계산하지 않습니다.
-
-    </div>
-
-</div>
 
 
 <script>
 
 /* =========================================================
+   MINI BOWLING AUTOMATIC SYSTEM
+   현재 사용자가 보내준 탑뷰 사진 기준
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   기본 설정
+--------------------------------------------------------- */
+
+const CONFIG = {
+
+    /*
+       실제 처리 해상도.
+       너무 높이면 아이폰에서 무거워지므로
+       360 x 480으로 처리.
+    */
+
+    WIDTH: 360,
+    HEIGHT: 480,
+
+    /*
+       약 0.15~0.20초마다 카메라 분석
+    */
+
+    INTERVAL: 170,
+
+    /*
+       현재 사진 기준 핀 위치.
+
+       4
+       3
+       2
+       1
+    */
+
+    PINS: [
+
+        // 1~4
+        { x: 0.285, y: 0.205 },
+        { x: 0.420, y: 0.205 },
+        { x: 0.550, y: 0.205 },
+        { x: 0.680, y: 0.205 },
+
+        // 5~7
+        { x: 0.350, y: 0.335 },
+        { x: 0.495, y: 0.335 },
+        { x: 0.625, y: 0.335 },
+
+        // 8~9
+        { x: 0.425, y: 0.475 },
+        { x: 0.565, y: 0.475 },
+
+        // 10
+        { x: 0.505, y: 0.625 }
+    ],
+
+    /*
+       핀 분석 영역
+    */
+
+    PIN_RX: 0.060,
+    PIN_RY: 0.070,
+
+    /*
+       공이 굴러오는 영역.
+
+       화면 아래쪽에서 위쪽으로
+       공이 움직이는 것을 찾음.
+    */
+
+    BALL_ROI: {
+        x: 0.12,
+        y: 0.55,
+        w: 0.76,
+        h: 0.42
+    },
+
+    /*
+       핀이 움직이는 전체 영역
+    */
+
+    BOARD_ROI: {
+        x: 0.08,
+        y: 0.10,
+        w: 0.84,
+        h: 0.82
+    },
+
+    /*
+       움직임 시작 기준
+    */
+
+    MOTION_START: 0.018,
+
+    /*
+       움직임이 멈췄다고 판단하는 기준
+    */
+
+    MOTION_STOP: 0.009,
+
+    /*
+       연속으로 움직임이 있어야 실제 투구로 판단
+    */
+
+    MOTION_START_FRAMES: 2,
+
+    /*
+       이 정도 프레임 동안 움직임이 없어야
+       투구가 끝났다고 판단
+    */
+
+    MOTION_STOP_FRAMES: 9,
+
+    /*
+       핀 위치가 안정된 시간
+    */
+
+    SETUP_STABLE_FRAMES: 12,
+
+    RESET_STABLE_FRAMES: 13,
+
+    /*
+       핀 이미지 변화 기준.
+
+       카메라가 고정되어 있을수록
+       이 값이 잘 작동함.
+    */
+
+    FALL_THRESHOLD: 0.115,
+
+    /*
+       서 있는 핀 확인 기준
+    */
+
+    STANDING_THRESHOLD: 0.115,
+
+    /*
+       너무 어둡거나 너무 밝은 영역을
+       핀으로 잘못 인식하지 않도록 함.
+    */
+
+    DARK_LIMIT: 95,
+    BRIGHT_LIMIT: 175
+};
+
+
+/* ---------------------------------------------------------
    DOM
-========================================================= */
+--------------------------------------------------------- */
 
 const video =
     document.getElementById("camera");
 
 const canvas =
-    document.getElementById("processCanvas");
+    document.getElementById("processor");
 
 const ctx =
-    canvas.getContext(
-        "2d",
-        {
-            willReadFrequently:true
-        }
-    );
+    canvas.getContext("2d", {
+        willReadFrequently: true
+    });
 
+const statusEl =
+    document.getElementById("status");
 
-const startButton =
-    document.getElementById("startButton");
+const detailEl =
+    document.getElementById("detail");
 
-const statusTitle =
-    document.getElementById("statusTitle");
+const resultTextEl =
+    document.getElementById("resultText");
 
-const statusText =
-    document.getElementById("statusText");
+const resultSubEl =
+    document.getElementById("resultSub");
 
 const totalScoreEl =
     document.getElementById("totalScore");
 
-const frameNumberEl =
-    document.getElementById("frameNumber");
+const frameTextEl =
+    document.getElementById("frameText");
 
-const throwNumberEl =
-    document.getElementById("throwNumber");
+const ballTextEl =
+    document.getElementById("ballText");
 
-const pinNumberEl =
-    document.getElementById("pinNumber");
-
-const framesEl =
-    document.getElementById("frames");
-
-const lastResultEl =
-    document.getElementById("lastResult");
+const startButton =
+    document.getElementById("startButton");
 
 
-/* =========================================================
-   PROCESSING CONFIG
-========================================================= */
+/* ---------------------------------------------------------
+   게임 상태
+--------------------------------------------------------- */
 
-/*
-   실제 카메라는 고해상도로 촬영하고
-   분석은 작은 화면으로 다운스케일해서
-   아이폰에서 부담을 줄인다.
-*/
+let stream = null;
 
-const PROCESS_WIDTH = 480;
-const PROCESS_HEIGHT = 270;
+let running = false;
 
+let state = "WAITING";
 
-/*
-   사진처럼 카메라가 위에서 고정되어 있다고 가정.
+let timer = null;
 
-   4
-   3
-   2
-   1
+let previousImage = null;
 
-   형태의 핀 위치.
+let baselineImage = null;
 
-   처음 실행할 때 자동으로 이 주변에서
-   핀을 찾는다.
-*/
+let standingTemplate = [];
 
-const PIN_POSITIONS = [
+let baselineTemplate = [];
 
-    {x:0.31,y:0.29},
-    {x:0.48,y:0.28},
-    {x:0.65,y:0.28},
-    {x:0.80,y:0.29},
+let currentPinCenters = [];
 
-    {x:0.39,y:0.36},
-    {x:0.54,y:0.36},
-    {x:0.69,y:0.36},
+let activePins = Array.from(
+    { length: 10 },
+    (_, i) => i
+);
 
-    {x:0.46,y:0.43},
-    {x:0.60,y:0.43},
+let requiredPins = Array.from(
+    { length: 10 },
+    (_, i) => i
+);
 
-    {x:0.53,y:0.51}
+let motionStartCount = 0;
 
-];
+let motionStopCount = 0;
 
+let setupStableCount = 0;
 
-/*
-   상태
-*/
-
-let state =
-    "WAIT_SETUP";
-
-
-/*
-   카메라
-*/
-
-let stream =
-    null;
-
-
-/*
-   현재 프레임 이미지
-*/
-
-let previousImage =
-    null;
-
-
-/*
-   최초 핀 배치
-*/
-
-let standingTemplate =
-    null;
-
-
-/*
-   이번 투구 직전 상태
-*/
-
-let baseline =
-    null;
-
-
-/*
-   현재 투구에서 실제로
-   점수 대상이 되는 핀
-*/
-
-let activePins =
-    Array.from(
-        {length:10},
-        (_,i)=>i
-    );
-
-
-/*
-   쓰러진 핀
-*/
-
-let fallenPins = [];
-
-
-/*
-   볼링 기록
-*/
+let resetStableCount = 0;
 
 let rolls = [];
 
+let gameFrame = 1;
 
-/*
-   현재 프레임
-*/
+let ballNumber = 1;
 
-let currentFrame = 1;
-
-
-/*
-   현재 투구
-*/
-
-let currentThrow = 1;
+let lastResult = 0;
 
 
-/*
-   감지용 카운터
-*/
+/* ---------------------------------------------------------
+   유틸
+--------------------------------------------------------- */
 
-let setupStable = 0;
+function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+}
 
-let readyMovement = 0;
+function pxX(v) {
+    return Math.round(
+        v * CONFIG.WIDTH
+    );
+}
 
-let stopStable = 0;
-
-let resetStable = 0;
-
-
-/*
-   결과 중복 방지
-*/
-
-let resultLocked = false;
-
-
-/*
-   처리 주기
-*/
-
-let lastProcessTime = 0;
+function pxY(v) {
+    return Math.round(
+        v * CONFIG.HEIGHT
+    );
+}
 
 
-/*
-   약 5~6fps 정도로 분석
-*/
-
-const PROCESS_INTERVAL = 180;
-
-
-/* =========================================================
-   STATUS
-========================================================= */
+/* ---------------------------------------------------------
+   상태 표시
+--------------------------------------------------------- */
 
 function setStatus(
     title,
-    text=""
-){
+    detail = ""
+) {
 
-    statusTitle.textContent =
-        title;
+    statusEl.textContent = title;
 
-    statusText.textContent =
-        text;
-
+    detailEl.textContent = detail;
 }
 
 
-/* =========================================================
-   CAMERA
-========================================================= */
+/* ---------------------------------------------------------
+   이미지 캡처
+--------------------------------------------------------- */
 
-async function startGame(){
-
-    startButton.classList.add(
-        "hidden"
-    );
-
-
-    setStatus(
-        "카메라 준비 중...",
-        "후면 카메라를 연결하고 있습니다."
-    );
-
-
-    try{
-
-        stream =
-            await navigator.mediaDevices.getUserMedia({
-
-                audio:false,
-
-                video:{
-                    facingMode:{
-                        ideal:"environment"
-                    },
-
-                    width:{
-                        ideal:1280
-                    },
-
-                    height:{
-                        ideal:720
-                    }
-                }
-
-            });
-
-
-        video.srcObject =
-            stream;
-
-
-        await video.play();
-
-
-        canvas.width =
-            PROCESS_WIDTH;
-
-        canvas.height =
-            PROCESS_HEIGHT;
-
-
-        /*
-           화면 켜짐 유지
-        */
-
-        try{
-
-            if(
-                "wakeLock" in navigator
-            ){
-
-                await navigator.wakeLock.request(
-                    "screen"
-                );
-
-            }
-
-        }catch(e){}
-
-
-        setStatus(
-            "핀 10개를 세워주세요.",
-            "손을 치우면 자동으로 인식합니다."
-        );
-
-
-        state =
-            "WAIT_SETUP";
-
-
-        requestAnimationFrame(
-            loop
-        );
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-
-        startButton.classList.remove(
-            "hidden"
-        );
-
-
-        setStatus(
-            "카메라를 사용할 수 없습니다.",
-            "Safari에서 카메라 권한을 허용해주세요."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   CAPTURE
-========================================================= */
-
-function capture(){
-
-    if(
-        !video.videoWidth ||
-        !video.videoHeight
-    ){
-
-        return null;
-
-    }
-
+function captureFrame() {
 
     ctx.drawImage(
         video,
         0,
         0,
-        PROCESS_WIDTH,
-        PROCESS_HEIGHT
+        CONFIG.WIDTH,
+        CONFIG.HEIGHT
     );
-
 
     return ctx.getImageData(
         0,
         0,
-        PROCESS_WIDTH,
-        PROCESS_HEIGHT
+        CONFIG.WIDTH,
+        CONFIG.HEIGHT
     );
-
 }
 
 
-/* =========================================================
-   PIN FEATURE
-========================================================= */
+/* ---------------------------------------------------------
+   픽셀 밝기
+--------------------------------------------------------- */
 
-function getPinFeature(
+function brightness(
+    data,
+    x,
+    y
+) {
+
+    const xx =
+        clamp(
+            Math.round(x),
+            0,
+            CONFIG.WIDTH - 1
+        );
+
+    const yy =
+        clamp(
+            Math.round(y),
+            0,
+            CONFIG.HEIGHT - 1
+        );
+
+    const index =
+        (yy * CONFIG.WIDTH + xx) * 4;
+
+    const r = data[index];
+
+    const g = data[index + 1];
+
+    const b = data[index + 2];
+
+    return (
+        0.299 * r +
+        0.587 * g +
+        0.114 * b
+    );
+}
+
+
+/* ---------------------------------------------------------
+   작은 패치 추출
+
+   핀 하나의 모습을 숫자로 저장한다.
+--------------------------------------------------------- */
+
+function extractPatch(
     image,
-    pin
-){
-
-    const w =
-        image.width;
-
-    const h =
-        image.height;
-
-
-    const cx =
-        Math.round(
-            pin.x*w
-        );
-
-    const cy =
-        Math.round(
-            pin.y*h
-        );
-
-
-    /*
-       핀 주변 영역
-    */
+    cx,
+    cy
+) {
 
     const rx =
-        Math.round(
-            w*0.055
-        );
+        CONFIG.PIN_RX *
+        CONFIG.WIDTH;
 
     const ry =
-        Math.round(
-            h*0.075
-        );
+        CONFIG.PIN_RY *
+        CONFIG.HEIGHT;
 
+    const patch = [];
+
+    const gridW = 16;
+
+    const gridH = 18;
+
+    for (
+        let gy = 0;
+        gy < gridH;
+        gy++
+    ) {
+
+        const ny =
+            gy / (gridH - 1);
+
+        const y =
+            cy - ry +
+            ny * ry * 2;
+
+        for (
+            let gx = 0;
+            gx < gridW;
+            gx++
+        ) {
+
+            const nx =
+                gx / (gridW - 1);
+
+            const x =
+                cx - rx +
+                nx * rx * 2;
+
+            patch.push(
+                brightness(
+                    image.data,
+                    x,
+                    y
+                )
+            );
+        }
+    }
+
+    return patch;
+}
+
+
+/* ---------------------------------------------------------
+   패치 차이
+--------------------------------------------------------- */
+
+function patchDifference(
+    a,
+    b
+) {
+
+    if (!a || !b) {
+        return 1;
+    }
 
     let total = 0;
 
-    let bright = 0;
+    const length =
+        Math.min(
+            a.length,
+            b.length
+        );
+
+    for (
+        let i = 0;
+        i < length;
+        i++
+    ) {
+
+        total +=
+            Math.abs(
+                a[i] - b[i]
+            ) / 255;
+    }
+
+    return total / length;
+}
+
+
+/* ---------------------------------------------------------
+   핀 위치 주변의 특징 확인
+--------------------------------------------------------- */
+
+function pinAppearance(
+    image,
+    pin
+) {
+
+    const cx =
+        pin.x * CONFIG.WIDTH;
+
+    const cy =
+        pin.y * CONFIG.HEIGHT;
+
+    const rx =
+        CONFIG.PIN_RX *
+        CONFIG.WIDTH;
+
+    const ry =
+        CONFIG.PIN_RY *
+        CONFIG.HEIGHT;
 
     let dark = 0;
 
-    let sx = 0;
-
-    let sy = 0;
-
-
-    for(
-        let y=cy-ry;
-        y<=cy+ry;
-        y+=3
-    ){
-
-        for(
-            let x=cx-rx;
-            x<=cx+rx;
-            x+=3
-        ){
-
-            if(
-                x<0 ||
-                y<0 ||
-                x>=w ||
-                y>=h
-            ){
-
-                continue;
-
-            }
-
-
-            const index =
-                (y*w+x)*4;
-
-
-            const r =
-                image.data[index];
-
-            const g =
-                image.data[index+1];
-
-            const b =
-                image.data[index+2];
-
-
-            const brightness =
-                (
-                    r+
-                    g+
-                    b
-                )/3;
-
-
-            total++;
-
-
-            if(
-                brightness>165
-            ){
-
-                bright++;
-
-            }
-
-
-            if(
-                brightness<80
-            ){
-
-                dark++;
-
-                sx += x-cx;
-
-                sy += y-cy;
-
-            }
-
-        }
-
-    }
-
-
-    let darkX = 0;
-
-    let darkY = 0;
-
-
-    if(dark>0){
-
-        darkX =
-            sx/dark/rx;
-
-        darkY =
-            sy/dark/ry;
-
-    }
-
-
-    return {
-
-        bright:
-            bright/Math.max(total,1),
-
-        dark:
-            dark/Math.max(total,1),
-
-        darkX,
-        darkY
-
-    };
-
-}
-
-
-/* =========================================================
-   PIN PRESENCE
-========================================================= */
-
-function pinPresence(
-    feature
-){
-
-    /*
-       흰색 몸통 + 검은색 테이프
-    */
-
-    const white =
-        Math.min(
-            feature.bright/0.20,
-            1
-        );
-
-
-    const black =
-        Math.min(
-            feature.dark/0.025,
-            1
-        );
-
-
-    return (
-        white*0.65+
-        black*0.35
-    );
-
-}
-
-
-/* =========================================================
-   PIN DISTANCE
-========================================================= */
-
-function featureDistance(
-    a,
-    b
-){
-
-    if(
-        !a ||
-        !b
-    ){
-
-        return 999;
-
-    }
-
-
-    const bright =
-        Math.abs(
-            a.bright-
-            b.bright
-        );
-
-
-    const dark =
-        Math.abs(
-            a.dark-
-            b.dark
-        );
-
-
-    const x =
-        Math.abs(
-            a.darkX-
-            b.darkX
-        );
-
-
-    const y =
-        Math.abs(
-            a.darkY-
-            b.darkY
-        );
-
-
-    return (
-        bright*1.2+
-        dark*1.5+
-        x*0.4+
-        y*0.4
-    );
-
-}
-
-
-/* =========================================================
-   DETECT ALL PINS
-========================================================= */
-
-function detectPins(
-    image
-){
-
-    const result = [];
-
-    let count = 0;
-
-
-    for(
-        let i=0;
-        i<PIN_POSITIONS.length;
-        i++
-    ){
-
-        const feature =
-            getPinFeature(
-                image,
-                PIN_POSITIONS[i]
-            );
-
-
-        const presence =
-            pinPresence(
-                feature
-            );
-
-
-        const standing =
-            presence >
-            0.42;
-
-
-        if(standing){
-
-            count++;
-
-        }
-
-
-        result.push({
-
-            standing,
-            presence,
-            feature
-
-        });
-
-    }
-
-
-    return {
-
-        count,
-        pins:result
-
-    };
-
-}
-
-
-/* =========================================================
-   MOVEMENT
-========================================================= */
-
-function movement(
-    a,
-    b,
-    mode="lane"
-){
-
-    if(
-        !a ||
-        !b
-    ){
-
-        return 0;
-
-    }
-
-
-    let xStart = 0;
-
-    let xEnd = PROCESS_WIDTH;
-
-    let yStart = 0;
-
-    let yEnd = PROCESS_HEIGHT;
-
-
-    /*
-       READY 상태에서는
-       공이 굴러오는 레인만 감지.
-
-       핀을 손으로 만지는 움직임 때문에
-       투구가 시작되는 것을 방지한다.
-    */
-
-    if(
-        mode==="lane"
-    ){
-
-        xStart =
-            Math.round(
-                PROCESS_WIDTH*0.08
-            );
-
-        xEnd =
-            Math.round(
-                PROCESS_WIDTH*0.92
-            );
-
-        yStart =
-            Math.round(
-                PROCESS_HEIGHT*0.45
-            );
-
-        yEnd =
-            Math.round(
-                PROCESS_HEIGHT*0.98
-            );
-
-    }
-
-
-    /*
-       결과 정지 감지는
-       핀 영역까지 포함.
-    */
-
-    if(
-        mode==="all"
-    ){
-
-        xStart =
-            Math.round(
-                PROCESS_WIDTH*0.05
-            );
-
-        xEnd =
-            Math.round(
-                PROCESS_WIDTH*0.95
-            );
-
-        yStart =
-            Math.round(
-                PROCESS_HEIGHT*0.12
-            );
-
-        yEnd =
-            Math.round(
-                PROCESS_HEIGHT*0.98
-            );
-
-    }
-
-
-    let changed = 0;
+    let bright = 0;
 
     let total = 0;
 
+    for (
+        let y = cy - ry;
+        y <= cy + ry;
+        y += 4
+    ) {
 
-    /*
-       빠른 분석
-    */
+        for (
+            let x = cx - rx;
+            x <= cx + rx;
+            x += 4
+        ) {
 
-    for(
-        let y=yStart;
-        y<yEnd;
-        y+=10
-    ){
-
-        for(
-            let x=xStart;
-            x<xEnd;
-            x+=10
-        ){
-
-            const i =
-                (y*PROCESS_WIDTH+x)*4;
-
-
-            const aGray =
-                (
-                    a.data[i]+
-                    a.data[i+1]+
-                    a.data[i+2]
-                )/3;
-
-
-            const bGray =
-                (
-                    b.data[i]+
-                    b.data[i+1]+
-                    b.data[i+2]
-                )/3;
-
-
-            const difference =
-                Math.abs(
-                    aGray-bGray
+            const value =
+                brightness(
+                    image.data,
+                    x,
+                    y
                 );
 
-
-            if(
-                difference>35
-            ){
-
-                changed++;
-
+            if (
+                value <
+                CONFIG.DARK_LIMIT
+            ) {
+                dark++;
             }
 
+            if (
+                value >
+                CONFIG.BRIGHT_LIMIT
+            ) {
+                bright++;
+            }
 
             total++;
-
         }
-
     }
 
+    return {
+        darkRatio:
+            dark / Math.max(1, total),
+
+        brightRatio:
+            bright / Math.max(1, total)
+    };
+}
+
+
+/* ---------------------------------------------------------
+   핀 존재 여부
+
+   현재 제작된 핀은 흰색 + 검은 테이프라서
+   밝은 영역과 어두운 영역이 함께 존재하는지 확인.
+--------------------------------------------------------- */
+
+function looksLikePin(
+    image,
+    pin
+) {
+
+    const a =
+        pinAppearance(
+            image,
+            pin
+        );
 
     return (
-        changed/
-        Math.max(total,1)
+        a.brightRatio > 0.12 &&
+        a.darkRatio > 0.008
     );
-
 }
 
 
-/* =========================================================
-   INITIAL CALIBRATION
-========================================================= */
+/* ---------------------------------------------------------
+   핀 상태 템플릿 생성
+--------------------------------------------------------- */
 
-function calibrate(
+function createPinTemplates(
     image
-){
+) {
 
-    const detected =
-        detectPins(
-            image
-        );
+    standingTemplate = [];
 
+    baselineTemplate = [];
 
-    /*
-       처음에는 반드시 10개를
-       안정적으로 찾아야 한다.
-    */
+    currentPinCenters = [];
 
-    if(
-        detected.count===10
-    ){
+    for (
+        let i = 0;
+        i < CONFIG.PINS.length;
+        i++
+    ) {
 
-        setupStable++;
+        const pin =
+            CONFIG.PINS[i];
 
+        const cx =
+            pin.x *
+            CONFIG.WIDTH;
 
-        setStatus(
-            "핀 위치 확인 중",
-            "10/10 · "+
-            setupStable+
-            "/10"
-        );
+        const cy =
+            pin.y *
+            CONFIG.HEIGHT;
 
-
-    }
-    else{
-
-        setupStable=0;
-
-
-        setStatus(
-            "핀 10개를 세워주세요.",
-            "현재 감지: "+
-            detected.count+
-            "/10"
-        );
-
-    }
-
-
-    /*
-       10프레임 동안 동일하게 감지
-    */
-
-    if(
-        setupStable>=10
-    ){
-
-        standingTemplate =
-            detected.pins.map(
-                p=>p.feature
-            );
-
-
-        baseline =
-            detected.pins.map(
-                p=>p.feature
-            );
-
-
-        activePins =
-            Array.from(
-                {length:10},
-                (_,i)=>i
-            );
-
-
-        previousImage =
-            image;
-
-
-        state =
-            "READY";
-
-
-        setupStable=0;
-
-
-        setStatus(
-            "● READY",
-            "공을 굴리세요."
-        );
-
-
-        pinNumberEl.textContent =
-            "10";
-
-    }
-
-}
-
-
-/* =========================================================
-   CHECK STABLE REQUIRED PINS
-========================================================= */
-
-function requiredPinsReady(
-    image
-){
-
-    if(
-        !standingTemplate
-    ){
-
-        return false;
-
-    }
-
-
-    let ready = 0;
-
-
-    for(
-        const index of activePins
-    ){
-
-        const feature =
-            getPinFeature(
+        const patch =
+            extractPatch(
                 image,
-                PIN_POSITIONS[index]
+                cx,
+                cy
             );
 
+        standingTemplate[i] =
+            patch;
 
-        /*
-           최초의 정상적인 서있는 핀과 비교
-        */
+        baselineTemplate[i] =
+            patch;
 
-        const distance =
-            featureDistance(
-                feature,
-                standingTemplate[index]
-            );
-
-
-        const presence =
-            pinPresence(
-                feature
-            );
-
-
-        if(
-            distance<0.11 &&
-            presence>0.35
-        ){
-
-            ready++;
-
-        }
-
+        currentPinCenters[i] = {
+            x: cx,
+            y: cy
+        };
     }
-
-
-    return (
-        ready===
-        activePins.length
-    );
-
 }
 
 
-/* =========================================================
-   FIND FALLEN PINS
-========================================================= */
+/* ---------------------------------------------------------
+   특정 핀이 현재 서 있는지
+--------------------------------------------------------- */
 
-function findFallenPins(
+function isPinStanding(
+    image,
+    index
+) {
+
+    const pin =
+        CONFIG.PINS[index];
+
+    const cx =
+        pin.x *
+        CONFIG.WIDTH;
+
+    const cy =
+        pin.y *
+        CONFIG.HEIGHT;
+
+    const current =
+        extractPatch(
+            image,
+            cx,
+            cy
+        );
+
+    const difference =
+        patchDifference(
+            current,
+            standingTemplate[index]
+        );
+
+    return (
+        difference <
+        CONFIG.STANDING_THRESHOLD
+    );
+}
+
+
+/* ---------------------------------------------------------
+   현재 필요한 핀들이 모두 안정적으로 서 있는지
+--------------------------------------------------------- */
+
+function requiredPinsStanding(
     image
-){
+) {
+
+    for (
+        const index of requiredPins
+    ) {
+
+        if (
+            !isPinStanding(
+                image,
+                index
+            )
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/* ---------------------------------------------------------
+   움직임 계산
+--------------------------------------------------------- */
+
+function motionScore(
+    oldImage,
+    newImage,
+    roi
+) {
+
+    if (!oldImage || !newImage) {
+        return 0;
+    }
+
+    const startX =
+        Math.floor(
+            roi.x *
+            CONFIG.WIDTH
+        );
+
+    const endX =
+        Math.floor(
+            (roi.x + roi.w) *
+            CONFIG.WIDTH
+        );
+
+    const startY =
+        Math.floor(
+            roi.y *
+            CONFIG.HEIGHT
+        );
+
+    const endY =
+        Math.floor(
+            (roi.y + roi.h) *
+            CONFIG.HEIGHT
+        );
+
+    let difference = 0;
+
+    let count = 0;
+
+    /*
+       너무 많은 픽셀을 계산하지 않고
+       5픽셀 간격으로 검사.
+    */
+
+    for (
+        let y = startY;
+        y < endY;
+        y += 5
+    ) {
+
+        for (
+            let x = startX;
+            x < endX;
+            x += 5
+        ) {
+
+            const p =
+                (y * CONFIG.WIDTH + x) * 4;
+
+            const a =
+                (
+                    oldImage.data[p] +
+                    oldImage.data[p + 1] +
+                    oldImage.data[p + 2]
+                ) / 3;
+
+            const b =
+                (
+                    newImage.data[p] +
+                    newImage.data[p + 1] +
+                    newImage.data[p + 2]
+                ) / 3;
+
+            difference +=
+                Math.abs(a - b) / 255;
+
+            count++;
+        }
+    }
+
+    return difference /
+        Math.max(1, count);
+}
+
+
+/* ---------------------------------------------------------
+   핀 쓰러짐 판정
+--------------------------------------------------------- */
+
+function detectFallenPins(
+    image
+) {
 
     const fallen = [];
 
+    const standing = [];
 
-    if(
-        !baseline
-    ){
-
-        return fallen;
-
-    }
-
-
-    for(
+    for (
         const index of activePins
-    ){
+    ) {
+
+        const pin =
+            CONFIG.PINS[index];
+
+        const cx =
+            pin.x *
+            CONFIG.WIDTH;
+
+        const cy =
+            pin.y *
+            CONFIG.HEIGHT;
 
         const current =
-            getPinFeature(
+            extractPatch(
                 image,
-                PIN_POSITIONS[index]
+                cx,
+                cy
             );
 
-
-        const before =
-            baseline[index];
-
-
-        const distance =
-            featureDistance(
+        const diff =
+            patchDifference(
                 current,
-                before
+                baselineTemplate[index]
             );
 
-
         /*
-           서있는 핀과 현재 핀의 차이가
-           충분히 크면 쓰러진 것으로 판단.
+           현재 사진이
+           투구 전 기준 사진과 크게 달라졌다면
+           넘어졌다고 판단.
         */
 
-        if(
-            distance>0.105
-        ){
+        if (
+            diff >
+            CONFIG.FALL_THRESHOLD
+        ) {
 
-            fallen.push(
-                index
-            );
+            fallen.push(index);
 
+        } else {
+
+            standing.push(index);
         }
-
     }
 
-
-    return fallen;
-
+    return {
+        fallen,
+        standing
+    };
 }
 
 
-/* =========================================================
-   START THROW
-========================================================= */
-
-function beginThrow(){
-
-    state =
-        "THROWING";
-
-
-    stopStable=0;
-
-
-    resultLocked=false;
-
-
-    setStatus(
-        "🎳 THROWING",
-        "공과 핀의 움직임을 확인하는 중"
-    );
-
-}
-
-
-/* =========================================================
-   PROCESS THROW
-========================================================= */
-
-function processThrow(
-    image
-){
-
-    if(
-        resultLocked
-    ){
-
-        return;
-
-    }
-
-
-    const fallen =
-        findFallenPins(
-            image
-        );
-
-
-    /*
-       너무 짧은 움직임이면
-       오작동 방지
-    */
-
-    if(
-        fallen.length===0 &&
-        activePins.length>0
-    ){
-
-        /*
-           아무것도 안 쓰러진 경우도
-           실제 결과일 수 있으므로
-           바로 실패시키지 않는다.
-        */
-
-    }
-
-
-    resultLocked=true;
-
-
-    recordRoll(
-        fallen.length,
-        fallen
-    );
-
-}
-
-
-/* =========================================================
-   RECORD ROLL
-========================================================= */
-
-function recordRoll(
-    knocked,
-    fallen
-){
-
-    knocked =
-        Math.max(
-            0,
-            Math.min(
-                activePins.length,
-                knocked
-            )
-        );
-
-
-    rolls.push(
-        knocked
-    );
-
-
-    fallenPins =
-        fallen;
-
-
-    lastResultEl.textContent =
-        knocked===10
-        ? "STRIKE!"
-        : knocked;
-
-
-    /*
-       다음 투구를 위한
-       살아남은 핀
-    */
-
-    const survivors =
-        activePins.filter(
-            i =>
-                !fallen.includes(i)
-        );
-
-
-    /*
-       볼링 진행
-    */
-
-    advanceBowling(
-        knocked,
-        survivors
-    );
-
-
-    updateScoreboard();
-
-
-    /*
-       다음 준비 단계
-    */
-
-    state =
-        "WAIT_RESET";
-
-
-    resetStable=0;
-
-
-    previousImage=null;
-
-
-    if(
-        currentFrame>10
-    ){
-
-        setStatus(
-            "🏆 GAME COMPLETE",
-            "최종 점수: "+
-            calculateTotal()
-        );
-
-        return;
-
-    }
-
-
-    setStatus(
-        "결과: "+knocked+"개",
-        "핀을 정리하면 자동으로 다음 투구가 준비됩니다."
-    );
-
-}
-
-
-/* =========================================================
-   BOWLING STATE
-========================================================= */
-
-function advanceBowling(
-    knocked,
-    survivors
-){
-
-    /*
-       1~9 프레임
-    */
-
-    if(
-        currentFrame<10
-    ){
-
-        /*
-           1구
-        */
-
-        if(
-            currentThrow===1
-        ){
-
-            /*
-               스트라이크
-            */
-
-            if(
-                knocked===10
-            ){
-
-                currentFrame++;
-
-                currentThrow=1;
-
-                activePins =
-                    Array.from(
-                        {length:10},
-                        (_,i)=>i
-                    );
-
-            }
-
-            else{
-
-                /*
-                   2구에서는
-                   첫 구에서 살아남은 핀만
-                   점수 대상
-                */
-
-                currentThrow=2;
-
-                activePins =
-                    survivors;
-
-            }
-
-        }
-
-        /*
-           2구
-        */
-
-        else{
-
-            currentFrame++;
-
-            currentThrow=1;
-
-            activePins =
-                Array.from(
-                    {length:10},
-                    (_,i)=>i
-                );
-
-        }
-
-        return;
-
-    }
-
-
-    /*
-       ==========================================
-       10 프레임
-       ==========================================
-    */
-
-
-    if(
-        currentFrame===10
-    ){
-
-        /*
-           10프레임 1구
-        */
-
-        if(
-            currentThrow===1
-        ){
-
-            currentThrow=2;
-
-
-            /*
-               스트라이크면
-               2구는 다시 10개
-            */
-
-            if(
-                knocked===10
-            ){
-
-                activePins =
-                    Array.from(
-                        {length:10},
-                        (_,i)=>i
-                    );
-
-            }
-
-            else{
-
-                activePins =
-                    survivors;
-
-            }
-
-
-            return;
-
-        }
-
-
-        /*
-           10프레임 2구
-        */
-
-        if(
-            currentThrow===2
-        ){
-
-            const first =
-                rolls[
-                    rolls.length-2
-                ];
-
-
-            /*
-               스트라이크 또는 스페어면
-               3구
-            */
-
-            if(
-                first===10 ||
-                first+knocked===10
-            ){
-
-                currentThrow=3;
-
-
-                /*
-                   10프레임 스페어:
-                   3구는 새로 10개
-
-                   첫 구 스트라이크 후
-                   2구가 스트라이크면
-                   3구도 10개
-
-                   첫 구 스트라이크 후
-                   2구가 일반 투구면
-                   살아남은 핀
-                */
-
-                if(
-                    first!==10 ||
-                    knocked===10
-                ){
-
-                    activePins =
-                        Array.from(
-                            {length:10},
-                            (_,i)=>i
-                        );
-
-                }
-
-                else{
-
-                    activePins =
-                        survivors;
-
-                }
-
-                return;
-
-            }
-
-
-            /*
-               일반 10프레임 종료
-            */
-
-            currentFrame=11;
-
-            return;
-
-        }
-
-
-        /*
-           10프레임 3구 종료
-        */
-
-        if(
-            currentThrow===3
-        ){
-
-            currentFrame=11;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   WAIT RESET
-========================================================= */
-
-function processReset(
-    image
-){
-
-    /*
-       핀 위치가 안정적으로
-       준비되어 있는지 확인
-    */
-
-    const pinsReady =
-        requiredPinsReady(
-            image
-        );
-
-
-    /*
-       손 움직임이 있으면
-       안정화 카운터를 초기화
-    */
-
-    const move =
-        previousImage
-        ? movement(
-            previousImage,
-            image,
-            "all"
-        )
-        : 0;
-
-
-    previousImage =
-        image;
-
-
-    if(
-        pinsReady &&
-        move<0.015
-    ){
-
-        resetStable++;
-
-
-        setStatus(
-            "핀 안정화 중",
-            resetStable+
-            "/12"
-        );
-
-    }
-    else{
-
-        resetStable=0;
-
-
-        setStatus(
-            "핀을 세우는 중...",
-            "손을 치우면 자동으로 준비됩니다."
-        );
-
-    }
-
-
-    /*
-       충분히 안정되면
-       새로운 기준 화면 저장
-    */
-
-    if(
-        resetStable>=12
-    ){
-
-        baseline =
-            allCurrentActiveFeatures(
-                image
-            );
-
-
-        previousImage =
-            image;
-
-
-        state =
-            "READY";
-
-
-        resetStable=0;
-
-
-        resultLocked=false;
-
-
-        setStatus(
-            "● READY",
-            "공을 굴리세요."
-        );
-
-
-        pinNumberEl.textContent =
-            activePins.length;
-
-    }
-
-}
-
-
-/* =========================================================
-   ACTIVE PIN BASELINE
-========================================================= */
-
-function allCurrentActiveFeatures(
-    image
-){
-
-    /*
-       전체 배열을 만들어 둔다.
-       활성 핀만 현재 상태 저장.
-    */
-
-    const result =
-        new Array(10);
-
-
-    for(
-        const index of activePins
-    ){
-
-        result[index] =
-            getPinFeature(
-                image,
-                PIN_POSITIONS[index]
-            );
-
-    }
-
-
-    /*
-       비활성 핀도 안전하게
-       이전 template을 사용
-    */
-
-    for(
-        let i=0;
-        i<10;
+/* ---------------------------------------------------------
+   핀 UI
+--------------------------------------------------------- */
+
+function updatePinUI(
+    standingPins
+) {
+
+    for (
+        let i = 0;
+        i < 10;
         i++
-    ){
+    ) {
 
-        if(
-            !result[i]
-        ){
+        const el =
+            document.getElementById(
+                "pin" + i
+            );
 
-            result[i] =
-                standingTemplate
-                ? standingTemplate[i]
-                : getPinFeature(
-                    image,
-                    PIN_POSITIONS[i]
-                );
+        el.classList.remove(
+            "standing",
+            "down"
+        );
 
+        if (
+            standingPins.includes(i)
+        ) {
+
+            el.classList.add(
+                "standing"
+            );
+
+        } else {
+
+            el.classList.add(
+                "down"
+            );
         }
-
     }
-
-
-    return result;
-
 }
 
 
-/* =========================================================
-   MAIN LOOP
-========================================================= */
+/* ---------------------------------------------------------
+   프레임 점수 계산
+--------------------------------------------------------- */
 
-function loop(
-    timestamp
-){
+function calculateScore(
+    rollList
+) {
 
-    if(
-        !stream
-    ){
+    let total = 0;
 
-        return;
+    let index = 0;
 
-    }
+    const frameScores = [];
 
-
-    /*
-       분석 속도 제한
-    */
-
-    if(
-        timestamp-lastProcessTime
-        <
-        PROCESS_INTERVAL
-    ){
-
-        requestAnimationFrame(
-            loop
-        );
-
-        return;
-
-    }
-
-
-    lastProcessTime =
-        timestamp;
-
-
-    const image =
-        capture();
-
-
-    if(
-        !image
-    ){
-
-        requestAnimationFrame(
-            loop
-        );
-
-        return;
-
-    }
-
-
-    /* ================================================
-       초기 핀 설정
-    ================================================= */
-
-    if(
-        state==="WAIT_SETUP"
-    ){
-
-        calibrate(
-            image
-        );
-
-    }
-
-
-    /* ================================================
-       READY
-    ================================================= */
-
-    else if(
-        state==="READY"
-    ){
-
-        if(
-            previousImage
-        ){
-
-            const motion =
-                movement(
-                    previousImage,
-                    image,
-                    "lane"
-                );
-
-
-            /*
-               공이 레인에서 움직였을 때
-            */
-
-            if(
-                motion>0.018
-            ){
-
-                readyMovement++;
-
-
-                if(
-                    readyMovement>=2
-                ){
-
-                    beginThrow();
-
-                }
-
-            }
-            else{
-
-                readyMovement=0;
-
-            }
-
-        }
-
-
-        previousImage =
-            image;
-
-    }
-
-
-    /* ================================================
-       THROWING
-    ================================================= */
-
-    else if(
-        state==="THROWING"
-    ){
-
-        const motion =
-            movement(
-                previousImage,
-                image,
-                "all"
-            );
-
-
-        previousImage =
-            image;
-
-
-        /*
-           움직이는 중
-        */
-
-        if(
-            motion>0.014
-        ){
-
-            stopStable=0;
-
-        }
-
-        else{
-
-            stopStable++;
-
-        }
-
-
-        /*
-           충분히 정지하면 결과 계산
-        */
-
-        if(
-            stopStable>=10
-        ){
-
-            /*
-               공이 완전히 멈춘 뒤
-               조금 더 기다린 후 판정
-            */
-
-            processThrow(
-                image
-            );
-
-        }
-
-    }
-
-
-    /* ================================================
-       핀 재설치
-    ================================================= */
-
-    else if(
-        state==="WAIT_RESET"
-    ){
-
-        processReset(
-            image
-        );
-
-    }
-
-
-    requestAnimationFrame(
-        loop
-    );
-
-}
-
-
-/* =========================================================
-   SCORE CALCULATION
-========================================================= */
-
-function calculateFrameScores(){
-
-    const scores =
-        [];
-
-    let index=0;
-
-    let total=0;
-
-
-    /*
-       1~9 프레임
-    */
-
-    for(
-        let frame=1;
-        frame<=9;
+    for (
+        let frame = 1;
+        frame <= 9;
         frame++
-    ){
+    ) {
 
-        if(
-            rolls[index]===undefined
-        ){
-
-            scores.push(
-                null
-            );
-
-            break;
-
+        if (
+            index >= rollList.length
+        ) {
+            frameScores.push(null);
+            continue;
         }
-
 
         const first =
-            rolls[index];
+            rollList[index];
 
+        if (
+            first === 10
+        ) {
 
-        /*
-           STRIKE
-        */
+            if (
+                index + 2 >=
+                rollList.length
+            ) {
 
-        if(
-            first===10
-        ){
-
-            if(
-                rolls[index+1]===undefined ||
-                rolls[index+2]===undefined
-            ){
-
-                scores.push(
-                    null
-                );
-
-                break;
-
+                frameScores.push(null);
+                continue;
             }
 
+            const score =
+                10 +
+                rollList[index + 1] +
+                rollList[index + 2];
 
-            total +=
-                10+
-                rolls[index+1]+
-                rolls[index+2];
+            total += score;
 
+            frameScores.push(total);
 
-            scores.push(
-                total
-            );
+            index += 1;
 
+        } else {
 
-            index++;
+            if (
+                index + 1 >=
+                rollList.length
+            ) {
 
-            continue;
-
-        }
-
-
-        /*
-           2구가 아직 없는 경우
-        */
-
-        if(
-            rolls[index+1]===undefined
-        ){
-
-            scores.push(
-                null
-            );
-
-            break;
-
-        }
-
-
-        const second =
-            rolls[index+1];
-
-
-        /*
-           SPARE
-        */
-
-        if(
-            first+second===10
-        ){
-
-            if(
-                rolls[index+2]===undefined
-            ){
-
-                scores.push(
-                    null
-                );
-
-                break;
-
+                frameScores.push(null);
+                continue;
             }
 
+            const second =
+                rollList[index + 1];
 
-            total +=
-                10+
-                rolls[index+2];
+            if (
+                first + second === 10
+            ) {
 
+                if (
+                    index + 2 >=
+                    rollList.length
+                ) {
+
+                    frameScores.push(null);
+                    continue;
+                }
+
+                total +=
+                    10 +
+                    rollList[index + 2];
+
+            } else {
+
+                total +=
+                    first +
+                    second;
+            }
+
+            frameScores.push(total);
+
+            index += 2;
         }
-
-        else{
-
-            total +=
-                first+
-                second;
-
-        }
-
-
-        scores.push(
-            total
-        );
-
-
-        index+=2;
-
     }
 
 
-    /*
-       10 프레임
-    */
+    /* 10프레임 */
 
-    if(
-        rolls[index]!==undefined
-    ){
+    if (
+        index < rollList.length
+    ) {
 
         const a =
-            rolls[index];
+            rollList[index];
 
+        const b =
+            rollList[index + 1];
 
-        if(
-            a===10
-        ){
+        const c =
+            rollList[index + 2];
 
-            const b =
-                rolls[index+1];
+        if (
+            a === 10
+        ) {
 
-            const c =
-                rolls[index+2];
-
-
-            if(
-                b!==undefined &&
-                c!==undefined
-            ){
+            if (
+                b !== undefined &&
+                c !== undefined
+            ) {
 
                 total +=
-                    10+b+c;
+                    a + b + c;
 
-                scores.push(
-                    total
-                );
+                frameScores.push(total);
 
-            }
-            else{
+            } else {
 
-                scores.push(
-                    null
-                );
-
+                frameScores.push(null);
             }
 
-        }
+        } else if (
+            b !== undefined
+        ) {
 
-        else if(
-            rolls[index+1]!==undefined
-        ){
+            if (
+                a + b === 10
+            ) {
 
-            const b =
-                rolls[index+1];
-
-
-            if(
-                a+b===10
-            ){
-
-                const c =
-                    rolls[index+2];
-
-
-                if(
-                    c!==undefined
-                ){
+                if (
+                    c !== undefined
+                ) {
 
                     total +=
-                        10+c;
+                        10 + c;
 
-                    scores.push(
-                        total
-                    );
+                    frameScores.push(total);
 
-                }
-                else{
+                } else {
 
-                    scores.push(
-                        null
-                    );
-
+                    frameScores.push(null);
                 }
 
-            }
-
-            else{
+            } else {
 
                 total +=
-                    a+b;
+                    a + b;
 
-                scores.push(
-                    total
-                );
-
+                frameScores.push(total);
             }
 
+        } else {
+
+            frameScores.push(null);
         }
-
-        else{
-
-            scores.push(
-                null
-            );
-
-        }
-
     }
 
-
-    return scores;
-
+    return {
+        total,
+        frameScores
+    };
 }
 
 
-/* =========================================================
-   TOTAL
-========================================================= */
+/* ---------------------------------------------------------
+   프레임 화면
+--------------------------------------------------------- */
 
-function calculateTotal(){
+function renderFrames() {
 
-    const scores =
-        calculateFrameScores();
-
-
-    for(
-        let i=scores.length-1;
-        i>=0;
-        i--
-    ){
-
-        if(
-            scores[i]!==null &&
-            scores[i]!==undefined
-        ){
-
-            return scores[i];
-
-        }
-
-    }
-
-
-    return 0;
-
-}
-
-
-/* =========================================================
-   DISPLAY SCOREBOARD
-========================================================= */
-
-function updateScoreboard(){
-
-    const scores =
-        calculateFrameScores();
-
-
-    totalScoreEl.textContent =
-        calculateTotal();
-
-
-    frameNumberEl.textContent =
-        Math.min(
-            currentFrame,
-            10
+    const container =
+        document.getElementById(
+            "frames"
         );
 
+    container.innerHTML = "";
 
-    throwNumberEl.textContent =
-        currentThrow;
+    const scoreData =
+        calculateScore(
+            rolls
+        );
 
+    let rollIndex = 0;
 
-    pinNumberEl.textContent =
-        activePins.length;
-
-
-    framesEl.innerHTML="";
-
-
-    /*
-       10개 프레임 생성
-    */
-
-    let index=0;
-
-
-    for(
-        let frame=1;
-        frame<=10;
+    for (
+        let frame = 1;
+        frame <= 10;
         frame++
-    ){
+    ) {
 
-        const frameEl =
+        const box =
             document.createElement(
                 "div"
             );
 
-
-        frameEl.className =
+        box.className =
             "frame";
 
-
-        if(
-            frame===currentFrame
-        ){
-
-            frameEl.classList.add(
+        if (
+            frame === gameFrame
+        ) {
+            box.classList.add(
                 "active"
             );
-
         }
 
+        if (
+            frame === 10
+        ) {
+            box.classList.add(
+                "tenth"
+            );
+        }
 
         const number =
             document.createElement(
                 "div"
             );
 
-
         number.className =
             "frameNumber";
-
 
         number.textContent =
             frame;
 
-
-        frameEl.appendChild(
+        box.appendChild(
             number
         );
 
-
-        const rollsEl =
+        const rollBox =
             document.createElement(
                 "div"
             );
 
-
-        rollsEl.className =
+        rollBox.className =
             "rolls";
 
+        let numberOfRolls =
+            frame === 10 ? 3 : 2;
 
-        /*
-           일반 프레임
-        */
+        for (
+            let r = 0;
+            r < numberOfRolls;
+            r++
+        ) {
 
-        if(
-            frame<10
-        ){
-
-            const first =
-                rolls[index];
-
-
-            const second =
-                rolls[index+1];
-
-
-            const r1 =
+            const cell =
                 document.createElement(
                     "div"
                 );
 
-            r1.className =
+            cell.className =
                 "roll";
 
+            if (
+                rollIndex <
+                rolls.length
+            ) {
 
-            const r2 =
-                document.createElement(
-                    "div"
-                );
+                const value =
+                    rolls[rollIndex];
 
-            r2.className =
-                "roll";
+                /*
+                   표시
+                */
 
+                if (
+                    frame !== 10 &&
+                    r === 0 &&
+                    value === 10
+                ) {
 
-            r1.textContent =
-                first===10
-                ? "X"
-                : (
-                    first===undefined
-                    ? ""
-                    : first
-                );
+                    cell.textContent =
+                        "X";
 
+                } else if (
+                    frame !== 10 &&
+                    r === 1 &&
+                    rolls[
+                        rollIndex - 1
+                    ] !== undefined &&
+                    rolls[
+                        rollIndex - 1
+                    ] +
+                    value === 10
+                ) {
 
-            if(
-                first===10
-            ){
+                    cell.textContent =
+                        "/";
 
-                r2.textContent="";
+                } else {
 
+                    cell.textContent =
+                        value;
+                }
+
+                rollIndex++;
             }
-            else if(
-                second!==undefined
-            ){
 
-                r2.textContent =
-                    first+second===10
-                    ? "/"
-                    : second;
-
-            }
-
-
-            rollsEl.appendChild(
-                r1
+            rollBox.appendChild(
+                cell
             );
-
-            rollsEl.appendChild(
-                r2
-            );
-
-
-            if(
-                first===10
-            ){
-
-                index++;
-
-            }
-            else if(
-                second!==undefined
-            ){
-
-                index+=2;
-
-            }
-
         }
 
-        /*
-           10프레임
-        */
-
-        else{
-
-            const r1 =
-                document.createElement(
-                    "div"
-                );
-
-            const r2 =
-                document.createElement(
-                    "div"
-                );
-
-
-            r1.className="roll";
-
-            r2.className="roll";
-
-
-            const a =
-                rolls[index];
-
-            const b =
-                rolls[index+1];
-
-            const c =
-                rolls[index+2];
-
-
-            r1.textContent =
-                a===undefined
-                ? ""
-                : (
-                    a===10
-                    ? "X"
-                    : a
-                );
-
-
-            r2.textContent =
-                b===undefined
-                ? ""
-                : (
-                    b===10
-                    ? "X"
-                    : (
-                        a!==10 &&
-                        a+b===10
-                        ? "/"
-                        : b
-                    )
-                );
-
-
-            rollsEl.appendChild(
-                r1
-            );
-
-            rollsEl.appendChild(
-                r2
-            );
-
-        }
-
-
-        frameEl.appendChild(
-            rollsEl
+        box.appendChild(
+            rollBox
         );
 
-
-        const frameScore =
+        const score =
             document.createElement(
                 "div"
             );
 
-
-        frameScore.className =
+        score.className =
             "frameScore";
 
+        const fs =
+            scoreData.frameScores[
+                frame - 1
+            ];
 
-        frameScore.textContent =
-            scores[frame-1] ??
-            "";
+        score.textContent =
+            fs ?? "";
 
-
-        frameEl.appendChild(
-            frameScore
+        box.appendChild(
+            score
         );
 
-
-        framesEl.appendChild(
-            frameEl
+        container.appendChild(
+            box
         );
-
     }
 
+    totalScoreEl.textContent =
+        scoreData.total;
 }
 
 
-/* =========================================================
-   초기 화면
-========================================================= */
+/* ---------------------------------------------------------
+   결과 표시
+--------------------------------------------------------- */
 
-updateScoreboard();
+function showResult(
+    knocked
+) {
+
+    lastResult = knocked;
+
+    if (
+        knocked === 10 &&
+        activePins.length === 10
+    ) {
+
+        resultTextEl.textContent =
+            "🎳 STRIKE";
+
+        resultSubEl.textContent =
+            "10개 모두 쓰러졌습니다";
+
+        return;
+    }
 
 
-/* =========================================================
-   페이지가 다시 보일 때 Wake Lock 재요청
-========================================================= */
+    if (
+        ballNumber === 2
+    ) {
 
-document.addEventListener(
-    "visibilitychange",
-    async ()=>{
+        /*
+           현재 프레임의 첫 투구
+        */
 
-        if(
-            document.visibilityState==="visible" &&
-            stream &&
-            "wakeLock" in navigator
-        ){
+        const previous =
+            rolls[
+                rolls.length - 1
+            ];
 
-            try{
+        /*
+           실제 계산은 rolls에 들어간 뒤
+           다시 확인.
+        */
 
-                await navigator.wakeLock.request(
-                    "screen"
-                );
+        if (
+            gameFrame <= 10
+        ) {
 
-            }catch(e){}
+            const frameRolls =
+                getCurrentFrameRolls();
 
+            if (
+                frameRolls.length >= 2 &&
+                frameRolls[0] +
+                frameRolls[1] === 10
+            ) {
+
+                resultTextEl.textContent =
+                    "✨ SPARE";
+
+                resultSubEl.textContent =
+                    "10개를 모두 쓰러뜨렸습니다";
+
+                return;
+            }
+        }
+    }
+
+
+    resultTextEl.textContent =
+        knocked + " PIN";
+
+    resultSubEl.textContent =
+        knocked +
+        "개의 핀이 쓰러졌습니다";
+}
+
+
+/* ---------------------------------------------------------
+   현재 프레임의 롤
+--------------------------------------------------------- */
+
+function getCurrentFrameRolls() {
+
+    const result = [];
+
+    let index = 0;
+
+    for (
+        let f = 1;
+        f <= gameFrame;
+        f++
+    ) {
+
+        if (
+            f === gameFrame
+        ) {
+            break;
         }
 
+        if (
+            rolls[index] === 10
+        ) {
+
+            index += 1;
+
+        } else {
+
+            index += 2;
+        }
     }
+
+    while (
+        index < rolls.length
+    ) {
+
+        result.push(
+            rolls[index]
+        );
+
+        index++;
+
+        /*
+           현재 프레임까지만
+        */
+
+        if (
+            result.length >= 3
+        ) {
+            break;
+        }
+    }
+
+    return result;
+}
+
+
+/* ---------------------------------------------------------
+   다음 투구 설정
+
+   실제 볼링 방식으로 처리.
+
+   1구에서 7개 쓰러짐
+   → 살아남은 3개만 2구 대상
+
+   스트라이크
+   → 다음 프레임 10개
+--------------------------------------------------------- */
+
+function prepareNextTurn(
+    fallen,
+    standing
+) {
+
+    if (
+        gameFrame < 10
+    ) {
+
+        /*
+           1구
+        */
+
+        if (
+            ballNumber === 1
+        ) {
+
+            if (
+                fallen.length === 10
+            ) {
+
+                /*
+                   STRIKE
+                */
+
+                gameFrame++;
+
+                ballNumber = 1;
+
+                activePins =
+                    Array.from(
+                        { length: 10 },
+                        (_, i) => i
+                    );
+
+                requiredPins =
+                    [...activePins];
+
+            } else {
+
+                /*
+                   2구는 살아남은 핀만
+                */
+
+                ballNumber = 2;
+
+                activePins =
+                    [...standing];
+
+                requiredPins =
+                    [...standing];
+            }
+
+        } else {
+
+            /*
+               2구 끝
+               다음 프레임
+            */
+
+            gameFrame++;
+
+            ballNumber = 1;
+
+            activePins =
+                Array.from(
+                    { length: 10 },
+                    (_, i) => i
+                );
+
+            requiredPins =
+                [...activePins];
+        }
+
+        return;
+    }
+
+
+    /*
+       10프레임
+    */
+
+    if (
+        ballNumber === 1
+    ) {
+
+        ballNumber = 2;
+
+        if (
+            fallen.length === 10
+        ) {
+
+            activePins =
+                Array.from(
+                    { length: 10 },
+                    (_, i) => i
+                );
+
+            requiredPins =
+                [...activePins];
+
+        } else {
+
+            activePins =
+                [...standing];
+
+            requiredPins =
+                [...standing];
+        }
+
+        return;
+    }
+
+
+    if (
+        ballNumber === 2
+    ) {
+
+        const current =
+            getCurrentFrameRolls();
+
+        const first =
+            current[0];
+
+        const second =
+            current[1];
+
+        /*
+           스트라이크 또는 스페어면
+           3구
+        */
+
+        if (
+            first === 10
+        ) {
+
+            ballNumber = 3;
+
+            if (
+                second === 10
+            ) {
+
+                activePins =
+                    Array.from(
+                        { length: 10 },
+                        (_, i) => i
+                    );
+
+                requiredPins =
+                    [...activePins];
+
+            } else {
+
+                activePins =
+                    [...standing];
+
+                requiredPins =
+                    [...standing];
+            }
+
+            return;
+        }
+
+
+        if (
+            first +
+            second === 10
+        ) {
+
+            ballNumber = 3;
+
+            activePins =
+                Array.from(
+                    { length: 10 },
+                    (_, i) => i
+                );
+
+            requiredPins =
+                [...activePins];
+
+            return;
+        }
+
+
+        /*
+           10프레임 종료
+        */
+
+        gameFinished();
+
+        return;
+    }
+
+
+    /*
+       3구 종료
+    */
+
+    gameFinished();
+}
+
+
+/* ---------------------------------------------------------
+   게임 종료
+--------------------------------------------------------- */
+
+function gameFinished() {
+
+    state =
+        "FINISHED";
+
+    const score =
+        calculateScore(
+            rolls
+        );
+
+    resultTextEl.textContent =
+        "🏆 GAME END";
+
+    resultSubEl.textContent =
+        "최종 점수 " +
+        score.total;
+
+    setStatus(
+        "게임 종료",
+        "페이지를 새로고침하면 새 게임을 시작할 수 있습니다."
+    );
+
+    renderFrames();
+}
+
+
+/* ---------------------------------------------------------
+   결과 확정
+--------------------------------------------------------- */
+
+function finalizeThrow(
+    image
+) {
+
+    const result =
+        detectFallenPins(
+            image
+        );
+
+    const fallen =
+        result.fallen;
+
+    const standing =
+        result.standing;
+
+    const knocked =
+        fallen.length;
+
+    /*
+       점수 기록
+    */
+
+    rolls.push(
+        knocked
+    );
+
+    updatePinUI(
+        standing
+    );
+
+    showResult(
+        knocked
+    );
+
+    renderFrames();
+
+    /*
+       다음 투구 준비
+    */
+
+    prepareNextTurn(
+        fallen,
+        standing
+    );
+
+    if (
+        state === "FINISHED"
+    ) {
+        return;
+    }
+
+    /*
+       핀 정리 단계
+    */
+
+    state =
+        "RESETTING";
+
+    resetStableCount = 0;
+
+    setStatus(
+        "핀 정리 중",
+        "손으로 핀을 세워주세요. 안정되면 자동으로 다음 투구가 시작됩니다."
+    );
+}
+
+
+/* ---------------------------------------------------------
+   초기 기준 학습
+--------------------------------------------------------- */
+
+function setupGame(
+    image
+) {
+
+    /*
+       10개 모두 서 있어야 시작.
+    */
+
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
+
+        if (
+            !looksLikePin(
+                image,
+                CONFIG.PINS[i]
+            )
+        ) {
+
+            return false;
+        }
+    }
+
+    createPinTemplates(
+        image
+    );
+
+    activePins =
+        Array.from(
+            { length: 10 },
+            (_, i) => i
+        );
+
+    requiredPins =
+        [...activePins];
+
+    baselineImage =
+        image;
+
+    state =
+        "READY";
+
+    setupStableCount = 0;
+
+    setStatus(
+        "READY",
+        "공을 굴리세요"
+    );
+
+    resultTextEl.textContent =
+        "READY";
+
+    resultSubEl.textContent =
+        "10개 핀 기준 설정 완료";
+
+    updatePinUI(
+        activePins
+    );
+
+    return true;
+}
+
+
+/* ---------------------------------------------------------
+   다음 투구 기준 저장
+--------------------------------------------------------- */
+
+function saveNextBaseline(
+    image
+) {
+
+    baselineImage =
+        image;
+
+    baselineTemplate = [];
+
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
+
+        const pin =
+            CONFIG.PINS[i];
+
+        const cx =
+            pin.x *
+            CONFIG.WIDTH;
+
+        const cy =
+            pin.y *
+            CONFIG.HEIGHT;
+
+        baselineTemplate[i] =
+            extractPatch(
+                image,
+                cx,
+                cy
+            );
+    }
+
+    state =
+        "READY";
+
+    motionStartCount = 0;
+
+    motionStopCount = 0;
+
+    setStatus(
+        "READY",
+        "공을 굴리세요"
+    );
+
+    resultTextEl.textContent =
+        "READY";
+
+    resultSubEl.textContent =
+        gameFrame +
+        "프레임 · " +
+        ballNumber +
+        "구";
+
+    updatePinUI(
+        activePins
+    );
+}
+
+
+/* ---------------------------------------------------------
+   메인 분석
+--------------------------------------------------------- */
+
+function analyze() {
+
+    if (
+        !running ||
+        video.readyState < 2
+    ) {
+        return;
+    }
+
+    const image =
+        captureFrame();
+
+
+    /* ==========================================
+       초기 핀 설정
+    ========================================== */
+
+    if (
+        state === "SETTING_UP"
+    ) {
+
+        if (
+            setupGame(
+                image
+            )
+        ) {
+
+            setupStableCount++;
+
+            /*
+               바로 READY로 만들지 않고
+               여러 프레임 확인.
+            */
+
+            if (
+                setupStableCount <
+                CONFIG.SETUP_STABLE_FRAMES
+            ) {
+
+                state =
+                    "SETTING_UP";
+
+                setStatus(
+                    "핀 학습 중",
+                    "10개 핀을 움직이지 말아주세요. " +
+                    setupStableCount +
+                    " / " +
+                    CONFIG.SETUP_STABLE_FRAMES
+                );
+
+                /*
+                   setupGame에서 READY가 되었으므로
+                   다시 상태를 돌려놓음
+                */
+
+                state =
+                    "SETTING_UP";
+
+            } else {
+
+                createPinTemplates(
+                    image
+                );
+
+                baselineImage =
+                    image;
+
+                baselineTemplate = [];
+
+                for (
+                    let i = 0;
+                    i < 10;
+                    i++
+                ) {
+
+                    baselineTemplate[i] =
+                        standingTemplate[i];
+                }
+
+                state =
+                    "READY";
+
+                setStatus(
+                    "READY",
+                    "공을 굴리세요"
+                );
+
+                resultTextEl.textContent =
+                    "READY";
+
+                resultSubEl.textContent =
+                    "자동 감지 시작";
+
+                updatePinUI(
+                    activePins
+                );
+            }
+
+        } else {
+
+            setupStableCount = 0;
+
+            setStatus(
+                "핀을 찾는 중",
+                "10개 핀을 모두 세우고 손을 빼주세요."
+            );
+        }
+
+        previousImage =
+            image;
+
+        return;
+    }
+
+
+    /* ==========================================
+       READY
+
+       공이 굴러오는 아래쪽 영역만 감시.
+       손으로 핀을 만지는 것은 투구로 인식하지 않음.
+    ========================================== */
+
+    if (
+        state === "READY"
+    ) {
+
+        const motion =
+            motionScore(
+                previousImage,
+                image,
+                CONFIG.BALL_ROI
+            );
+
+        if (
+            motion >
+            CONFIG.MOTION_START
+        ) {
+
+            motionStartCount++;
+
+        } else {
+
+            motionStartCount = 0;
+        }
+
+
+        if (
+            motionStartCount >=
+            CONFIG.MOTION_START_FRAMES
+        ) {
+
+            state =
+                "THROWING";
+
+            motionStopCount = 0;
+
+            setStatus(
+                "투구 감지",
+                "핀 움직임을 확인하는 중..."
+            );
+
+            resultTextEl.textContent =
+                "🎳";
+
+            resultSubEl.textContent =
+                "공이 이동 중입니다";
+
+            motionStartCount = 0;
+        }
+
+        previousImage =
+            image;
+
+        return;
+    }
+
+
+    /* ==========================================
+       THROWING
+    ========================================== */
+
+    if (
+        state === "THROWING"
+    ) {
+
+        const motion =
+            motionScore(
+                previousImage,
+                image,
+                CONFIG.BOARD_ROI
+            );
+
+        if (
+            motion <
+            CONFIG.MOTION_STOP
+        ) {
+
+            motionStopCount++;
+
+        } else {
+
+            motionStopCount = 0;
+        }
+
+
+        if (
+            motionStopCount >=
+            CONFIG.MOTION_STOP_FRAMES
+        ) {
+
+            /*
+               마지막으로 한 번 더 촬영.
+            */
+
+            state =
+                "CHECKING";
+
+            setStatus(
+                "판정 중",
+                "쓰러진 핀을 계산하고 있습니다."
+            );
+
+            setTimeout(
+                () => {
+
+                    if (
+                        running &&
+                        state === "CHECKING"
+                    ) {
+
+                        const finalImage =
+                            captureFrame();
+
+                        finalizeThrow(
+                            finalImage
+                        );
+                    }
+
+                },
+                650
+            );
+        }
+
+        previousImage =
+            image;
+
+        return;
+    }
+
+
+    /* ==========================================
+       RESETTING
+
+       손으로 핀을 세우는 동안
+       절대 점수 계산하지 않음.
+    ========================================== */
+
+    if (
+        state === "RESETTING"
+    ) {
+
+        /*
+           필요한 핀들이 모두 서 있는지
+           먼저 확인.
+        */
+
+        const standing =
+            requiredPinsStanding(
+                image
+            );
+
+        /*
+           전체 보드 움직임도 확인.
+           손이 아직 들어와 있으면 안정화 카운트를
+           다시 0으로 만듦.
+        */
+
+        const movement =
+            motionScore(
+                previousImage,
+                image,
+                CONFIG.BOARD_ROI
+            );
+
+        if (
+            standing &&
+            movement <
+            CONFIG.MOTION_STOP
+        ) {
+
+            resetStableCount++;
+
+        } else {
+
+            resetStableCount = 0;
+        }
+
+
+        if (
+            resetStableCount >=
+            CONFIG.RESET_STABLE_FRAMES
+        ) {
+
+            saveNextBaseline(
+                image
+            );
+
+            resetStableCount = 0;
+        } else {
+
+            setStatus(
+                "핀 안정화 중",
+                resetStableCount +
+                " / " +
+                CONFIG.RESET_STABLE_FRAMES
+            );
+        }
+
+        previousImage =
+            image;
+
+        return;
+    }
+
+
+    /* ==========================================
+       CHECKING
+    ========================================== */
+
+    if (
+        state === "CHECKING"
+    ) {
+
+        previousImage =
+            image;
+
+        return;
+    }
+
+
+    previousImage =
+        image;
+}
+
+
+/* ---------------------------------------------------------
+   카메라 시작
+--------------------------------------------------------- */
+
+async function startCamera() {
+
+    startButton.disabled =
+        true;
+
+    startButton.textContent =
+        "카메라 준비 중...";
+
+    try {
+
+        stream =
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    video: {
+
+                        facingMode: {
+                            ideal: "environment"
+                        },
+
+                        width: {
+                            ideal: 1280
+                        },
+
+                        height: {
+                            ideal: 720
+                        }
+                    },
+
+                    audio: false
+                });
+
+
+        video.srcObject =
+            stream;
+
+        await video.play();
+
+
+        /*
+           화면 꺼짐 방지.
+           지원되는 경우만 사용.
+        */
+
+        try {
+
+            if (
+                "wakeLock" in navigator
+            ) {
+
+                await navigator.wakeLock
+                    .request("screen");
+            }
+
+        } catch (e) {
+            // 지원하지 않아도 게임에는 영향 없음
+        }
+
+
+        startButton.classList.add(
+            "hidden"
+        );
+
+
+        running =
+            true;
+
+        state =
+            "SETTING_UP";
+
+        rolls = [];
+
+        gameFrame = 1;
+
+        ballNumber = 1;
+
+        activePins =
+            Array.from(
+                { length: 10 },
+                (_, i) => i
+            );
+
+        requiredPins =
+            [...activePins];
+
+        renderFrames();
+
+        setStatus(
+            "핀 학습 시작",
+            "10개 핀을 모두 세우고 손을 빼주세요."
+        );
+
+        resultTextEl.textContent =
+            "WAIT";
+
+        resultSubEl.textContent =
+            "자동으로 10개 핀을 인식합니다";
+
+
+        /*
+           첫 프레임 확보
+        */
+
+        await new Promise(
+            resolve => {
+
+                if (
+                    video.readyState >= 2
+                ) {
+
+                    resolve();
+
+                } else {
+
+                    video.onloadeddata =
+                        () => resolve();
+                }
+            }
+        );
+
+
+        previousImage =
+            captureFrame();
+
+
+        /*
+           분석 루프
+        */
+
+        timer =
+            setInterval(
+                analyze,
+                CONFIG.INTERVAL
+            );
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        startButton.disabled =
+            false;
+
+        startButton.textContent =
+            "📷 다시 시작";
+
+        setStatus(
+            "카메라를 시작할 수 없습니다",
+            "Safari의 카메라 권한을 허용했는지 확인하세요."
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   버튼
+--------------------------------------------------------- */
+
+startButton.addEventListener(
+    "click",
+    startCamera
 );
+
+
+/* ---------------------------------------------------------
+   초기 프레임
+--------------------------------------------------------- */
+
+renderFrames();
 
 </script>
 
